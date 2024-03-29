@@ -1,0 +1,1394 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.23.1.45101",
+      "templateHash": "4406422134370190827"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "Seed": {
+      "type": "string"
+    },
+    "MyObjectId": {
+      "type": "string"
+    },
+    "MyIPaddress": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "HubRgName": {
+      "type": "string",
+      "defaultValue": "[format('{0}-Demo', parameters('Seed'))]"
+    },
+    "HubVnetName": {
+      "type": "string",
+      "defaultValue": "[format('VNet-{0}', parameters('Seed'))]"
+    },
+    "HubVnetAddressPrefix": {
+      "type": "string"
+    },
+    "PEsubnetName": {
+      "type": "string",
+      "defaultValue": "PE-Subnet"
+    },
+    "PEsubnetAddressPrefix": {
+      "type": "string"
+    },
+    "DMZsubnetName": {
+      "type": "string",
+      "defaultValue": "DMZ-Subnet"
+    },
+    "DMZsubnetAddressPrefix": {
+      "type": "string"
+    },
+    "BastionSubnetAddressPrefix": {
+      "type": "string"
+    },
+    "FirewallSubnetAddressPrefix": {
+      "type": "string"
+    },
+    "FirewallManagementSubnetAddressPrefix": {
+      "type": "string"
+    },
+    "GatewaySubnetAddressPrefix": {
+      "type": "string"
+    },
+    "BastionHostName": {
+      "type": "string",
+      "defaultValue": "[format('Bastion-{0}', parameters('Seed'))]"
+    },
+    "BastionPublicIpName": {
+      "type": "string",
+      "defaultValue": "[format('BastionPublicIp-{0}', parameters('Seed'))]"
+    },
+    "WinCommand": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "LinCommand": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "LinNum": {
+      "type": "int",
+      "defaultValue": 0
+    },
+    "WinNum": {
+      "type": "int",
+      "defaultValue": 0
+    },
+    "WinVMname": {
+      "type": "string",
+      "defaultValue": "[format('WinVM-{0}', parameters('Seed'))]"
+    },
+    "LinVMname": {
+      "type": "string",
+      "defaultValue": "[format('LinVM-{0}', parameters('Seed'))]"
+    },
+    "CustomDnsServer": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "rnd": {
+      "type": "string",
+      "defaultValue": "[substring(uniqueString(utcNow()), 0, 5)]"
+    },
+    "vmsize": {
+      "type": "string",
+      "defaultValue": "Standard_B2ms"
+    },
+    "WorskspaceName": {
+      "type": "string",
+      "defaultValue": "[format('LA-{0}', parameters('Seed'))]"
+    },
+    "publicNetworkAccess": {
+      "type": "string",
+      "defaultValue": "Enabled"
+    },
+    "KVname": {
+      "type": "string",
+      "defaultValue": "[format('KV-{0}', parameters('Seed'))]"
+    },
+    "SSHPublickey": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "HubVnet",
+      "resourceGroup": "[parameters('HubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "Seed": {
+            "value": "[parameters('Seed')]"
+          },
+          "MyObjectId": {
+            "value": "[parameters('MyObjectId')]"
+          },
+          "MyIPaddress": {
+            "value": "[parameters('MyIPaddress')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "HubVnetName": {
+            "value": "[parameters('HubVnetName')]"
+          },
+          "BastionSubnetAddressPrefix": {
+            "value": "[parameters('BastionSubnetAddressPrefix')]"
+          },
+          "FirewallSubnetAddressPrefix": {
+            "value": "[parameters('FirewallSubnetAddressPrefix')]"
+          },
+          "FirewallManagementSubnetAddressPrefix": {
+            "value": "[parameters('FirewallManagementSubnetAddressPrefix')]"
+          },
+          "GatewaySubnetAddressPrefix": {
+            "value": "[parameters('GatewaySubnetAddressPrefix')]"
+          },
+          "HubVnetAddressPrefix": {
+            "value": "[parameters('HubVnetAddressPrefix')]"
+          },
+          "PEsubnetAddressPrefix": {
+            "value": "[parameters('PEsubnetAddressPrefix')]"
+          },
+          "PEsubnetName": {
+            "value": "[parameters('PEsubnetName')]"
+          },
+          "DMZsubnetAddressPrefix": {
+            "value": "[parameters('DMZsubnetAddressPrefix')]"
+          },
+          "DMZsubnetName": {
+            "value": "[parameters('DMZsubnetName')]"
+          },
+          "BastionHostName": {
+            "value": "[parameters('BastionHostName')]"
+          },
+          "BastionPublicIpName": {
+            "value": "[parameters('BastionPublicIpName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.23.1.45101",
+              "templateHash": "6313189800666330118"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "Seed": {
+              "type": "string"
+            },
+            "MyObjectId": {
+              "type": "string"
+            },
+            "MyIPaddress": {
+              "type": "string"
+            },
+            "adminPassword": {
+              "type": "securestring"
+            },
+            "HubVnetName": {
+              "type": "string"
+            },
+            "HubVnetAddressPrefix": {
+              "type": "string"
+            },
+            "PEsubnetName": {
+              "type": "string"
+            },
+            "PEsubnetAddressPrefix": {
+              "type": "string"
+            },
+            "DMZsubnetName": {
+              "type": "string"
+            },
+            "DMZsubnetAddressPrefix": {
+              "type": "string"
+            },
+            "BastionSubnetAddressPrefix": {
+              "type": "string"
+            },
+            "FirewallSubnetAddressPrefix": {
+              "type": "string"
+            },
+            "FirewallManagementSubnetAddressPrefix": {
+              "type": "string"
+            },
+            "GatewaySubnetAddressPrefix": {
+              "type": "string"
+            },
+            "BastionPublicIpName": {
+              "type": "string"
+            },
+            "BastionHostName": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "KVname": "[format('KV-{0}', parameters('Seed'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2021-02-01",
+              "name": "[parameters('HubVnetName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('HubVnetAddressPrefix')]"
+                  ]
+                },
+                "dhcpOptions": {
+                  "dnsServers": null
+                },
+                "subnets": [
+                  {
+                    "name": "AzureBastionSubnet",
+                    "properties": {
+                      "addressPrefix": "[parameters('BastionSubnetAddressPrefix')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": null
+                    }
+                  },
+                  {
+                    "name": "[parameters('PEsubnetName')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('PEsubnetAddressPrefix')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": null,
+                      "routeTable": null
+                    }
+                  },
+                  {
+                    "name": "AzureFirewallSubnet",
+                    "properties": {
+                      "addressPrefix": "[parameters('FirewallSubnetAddressPrefix')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled"
+                    }
+                  },
+                  {
+                    "name": "AzureFirewallManagementSubnet",
+                    "properties": {
+                      "addressPrefix": "[parameters('FirewallManagementSubnetAddressPrefix')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled"
+                    }
+                  },
+                  {
+                    "name": "GatewaySubnet",
+                    "properties": {
+                      "addressPrefix": "[parameters('GatewaySubnetAddressPrefix')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "routeTable": null
+                    }
+                  },
+                  {
+                    "name": "[parameters('DMZsubnetName')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('DMZsubnetAddressPrefix')]",
+                      "privateEndpointNetworkPolicies": "Disabled",
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "routeTable": null
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2021-04-01-preview",
+              "name": "[format('{0}/adminPassword', variables('KVname'))]",
+              "properties": {
+                "value": "[parameters('adminPassword')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', variables('KVname'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2020-08-01",
+              "name": "[parameters('BastionPublicIpName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Standard"
+              },
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              }
+            },
+            {
+              "type": "Microsoft.Network/bastionHosts",
+              "apiVersion": "2022-01-01",
+              "name": "[parameters('BastionHostName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Basic"
+              },
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "IpConf",
+                    "properties": {
+                      "subnet": {
+                        "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('HubVnetName')), '2021-02-01').subnets[0].id]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('BastionPublicIpName'))]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('HubVnetName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('BastionPublicIpName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "[variables('KVname')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "keyVaultName": {
+                    "value": "[variables('KVname')]"
+                  },
+                  "objectId": {
+                    "value": "[parameters('MyObjectId')]"
+                  },
+                  "location": {
+                    "value": "[parameters('location')]"
+                  },
+                  "MyIPaddress": {
+                    "value": "[parameters('MyIPaddress')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "0.23.1.45101",
+                      "templateHash": "16335059149479221238"
+                    }
+                  },
+                  "parameters": {
+                    "keyVaultName": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Specifies the name of the key vault."
+                      }
+                    },
+                    "location": {
+                      "type": "string",
+                      "defaultValue": "[resourceGroup().location]",
+                      "metadata": {
+                        "description": "Specifies the Azure location where the key vault should be created."
+                      }
+                    },
+                    "enabledForDeployment": {
+                      "type": "bool",
+                      "defaultValue": false,
+                      "metadata": {
+                        "description": "Specifies whether Azure Virtual Machines are permitted to retrieve certificates stored as secrets from the key vault."
+                      }
+                    },
+                    "enabledForDiskEncryption": {
+                      "type": "bool",
+                      "defaultValue": false,
+                      "metadata": {
+                        "description": "Specifies whether Azure Disk Encryption is permitted to retrieve secrets from the vault and unwrap keys."
+                      }
+                    },
+                    "enabledForTemplateDeployment": {
+                      "type": "bool",
+                      "defaultValue": true,
+                      "metadata": {
+                        "description": "Specifies whether Azure Resource Manager is permitted to retrieve secrets from the key vault."
+                      }
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "defaultValue": "[subscription().tenantId]",
+                      "metadata": {
+                        "description": "Specifies the Azure Active Directory tenant ID that should be used for authenticating requests to the key vault. Get it by using Get-AzSubscription cmdlet."
+                      }
+                    },
+                    "objectId": {
+                      "type": "string",
+                      "metadata": {
+                        "description": "Specifies the object ID of a user, service principal or security group in the Azure Active Directory tenant for the vault. The object ID must be unique for the list of access policies. Get it by using Get-AzADUser or Get-AzADServicePrincipal cmdlets."
+                      }
+                    },
+                    "keysPermissions": {
+                      "type": "array",
+                      "defaultValue": [
+                        "list"
+                      ],
+                      "metadata": {
+                        "description": "Specifies the permissions to keys in the vault. Valid values are: all, encrypt, decrypt, wrapKey, unwrapKey, sign, verify, get, list, create, update, import, delete, backup, restore, recover, and purge."
+                      }
+                    },
+                    "secretsPermissions": {
+                      "type": "array",
+                      "defaultValue": [
+                        "list",
+                        "get",
+                        "set"
+                      ],
+                      "metadata": {
+                        "description": "Specifies the permissions to secrets in the vault. Valid values are: all, get, list, set, delete, backup, restore, recover, and purge."
+                      }
+                    },
+                    "skuName": {
+                      "type": "string",
+                      "defaultValue": "standard",
+                      "allowedValues": [
+                        "standard",
+                        "premium"
+                      ],
+                      "metadata": {
+                        "description": "Specifies whether the key vault is a standard vault or a premium vault."
+                      }
+                    },
+                    "MyIPaddress": {
+                      "type": "string"
+                    }
+                  },
+                  "resources": [
+                    {
+                      "type": "Microsoft.KeyVault/vaults",
+                      "apiVersion": "2021-04-01-preview",
+                      "name": "[parameters('keyVaultName')]",
+                      "location": "[parameters('location')]",
+                      "properties": {
+                        "enabledForDeployment": "[parameters('enabledForDeployment')]",
+                        "enabledForDiskEncryption": "[parameters('enabledForDiskEncryption')]",
+                        "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
+                        "tenantId": "[parameters('tenantId')]",
+                        "accessPolicies": [
+                          {
+                            "objectId": "[parameters('objectId')]",
+                            "tenantId": "[parameters('tenantId')]",
+                            "permissions": {
+                              "keys": "[parameters('keysPermissions')]",
+                              "secrets": "[parameters('secretsPermissions')]"
+                            }
+                          }
+                        ],
+                        "sku": {
+                          "name": "[parameters('skuName')]",
+                          "family": "A"
+                        },
+                        "networkAcls": {
+                          "defaultAction": "Deny",
+                          "bypass": "AzureServices",
+                          "ipRules": [
+                            {
+                              "value": "[format('{0}/32', parameters('MyIPaddress'))]"
+                            }
+                          ],
+                          "virtualNetworkRules": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "HubVnetName": {
+              "type": "string",
+              "value": "[parameters('HubVnetName')]"
+            },
+            "PEsubnetName": {
+              "type": "string",
+              "value": "[parameters('PEsubnetName')]"
+            },
+            "KvName": {
+              "type": "string",
+              "value": "[variables('KVname')]"
+            },
+            "KV": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('KVname')), '2022-09-01')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[parameters('WorskspaceName')]",
+      "resourceGroup": "[parameters('HubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "WorkspaceName": {
+            "value": "[parameters('WorskspaceName')]"
+          },
+          "publicNetworkAccess": {
+            "value": "[parameters('publicNetworkAccess')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.23.1.45101",
+              "templateHash": "16420748186983061556"
+            }
+          },
+          "parameters": {
+            "WorkspaceName": {
+              "type": "string"
+            },
+            "publicNetworkAccess": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2021-06-01",
+              "name": "[parameters('WorkspaceName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "sku": {
+                  "name": "PerGB2018"
+                },
+                "publicNetworkAccessForIngestion": "[parameters('publicNetworkAccess')]",
+                "publicNetworkAccessForQuery": "Enabled"
+              }
+            }
+          ],
+          "outputs": {
+            "Id": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('WorkspaceName'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubRgName')), 'Microsoft.Resources/deployments', 'HubVnet')]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "WindowsVM",
+        "count": "[length(range(1, parameters('WinNum')))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('WindowsVM-{0}-{1}-{2}', parameters('Seed'), parameters('rnd'), range(1, parameters('WinNum'))[copyIndex()])]",
+      "resourceGroup": "[parameters('HubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vmName": {
+            "value": "[format('{0}-{1}', parameters('WinVMname'), range(1, parameters('WinNum'))[copyIndex()])]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('HubVnetName')]"
+          },
+          "subnetName": {
+            "value": "[parameters('DMZsubnetName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "Command": {
+            "value": "[parameters('WinCommand')]"
+          },
+          "CustomDnsServer": {
+            "value": "[parameters('CustomDnsServer')]"
+          },
+          "vmSize": {
+            "value": "[parameters('vmsize')]"
+          },
+          "Publisher": {
+            "value": "MicrosoftWindowsServer"
+          },
+          "Offer": {
+            "value": "WindowsServer"
+          },
+          "Sku": {
+            "value": "2022-Datacenter"
+          },
+          "Version": {
+            "value": "latest"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.23.1.45101",
+              "templateHash": "6885378561096714219"
+            }
+          },
+          "parameters": {
+            "adminUsername": {
+              "type": "string",
+              "defaultValue": "gdradmin",
+              "metadata": {
+                "description": "Username for the Virtual Machine."
+              }
+            },
+            "adminPassword": {
+              "type": "securestring",
+              "minLength": 12,
+              "metadata": {
+                "description": "Password for the Virtual Machine."
+              }
+            },
+            "dnsLabelPrefix": {
+              "type": "string",
+              "defaultValue": "[toLower(format('{0}-{1}', parameters('vmName'), uniqueString(resourceGroup().id, parameters('vmName'))))]",
+              "metadata": {
+                "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+              }
+            },
+            "Publisher": {
+              "type": "string",
+              "defaultValue": "MicrosoftWindowsServer"
+            },
+            "Offer": {
+              "type": "string",
+              "defaultValue": "WindowsServer"
+            },
+            "Sku": {
+              "type": "string",
+              "defaultValue": "2019-Datacenter"
+            },
+            "Version": {
+              "type": "string",
+              "defaultValue": "latest"
+            },
+            "vmSize": {
+              "type": "string",
+              "defaultValue": "Standard_B2ms",
+              "metadata": {
+                "description": "Size of the virtual machine."
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Location for all resources."
+              }
+            },
+            "vmName": {
+              "type": "string",
+              "defaultValue": "simple-vm",
+              "metadata": {
+                "description": "Name of the virtual machine."
+              }
+            },
+            "virtualNetworkName": {
+              "type": "string",
+              "metadata": {
+                "description": "(Existing) Virtual Network and subent where to join the VM"
+              }
+            },
+            "subnetName": {
+              "type": "string"
+            },
+            "Command": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "CustomDnsServer": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "publicIPAllocationMethod": {
+              "type": "string",
+              "defaultValue": "Dynamic",
+              "allowedValues": [
+                "Dynamic",
+                "Static"
+              ],
+              "metadata": {
+                "description": "Allocation method for the Public IP used to access the Virtual Machine."
+              }
+            }
+          },
+          "variables": {
+            "seed": "[substring(uniqueString(parameters('vmName'), parameters('virtualNetworkName'), parameters('subnetName')), 0, 5)]",
+            "nicName": "[format('{0}-Nic-{1}', parameters('vmName'), variables('seed'))]",
+            "publicIpName": "[format('{0}-PIP-{1}', parameters('vmName'), variables('seed'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2021-02-01",
+              "name": "[variables('nicName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+                      }
+                    }
+                  }
+                ],
+                "dnsSettings": {
+                  "dnsServers": "[if(equals(parameters('CustomDnsServer'), ''), createArray(), createArray(parameters('CustomDnsServer')))]"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2021-03-01",
+              "name": "[parameters('vmName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                  "computerName": "[parameters('vmName')]",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "[parameters('Publisher')]",
+                    "offer": "[parameters('Offer')]",
+                    "sku": "[parameters('Sku')]",
+                    "version": "[parameters('Version')]"
+                  },
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                      "storageAccountType": "StandardSSD_LRS"
+                    }
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+                    }
+                  ]
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": false
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('Command'), ''))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2022-08-01",
+              "name": "[format('{0}/{1}', parameters('vmName'), 'CustomScriptExtension')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "skipDos2Unix": false,
+                  "timestamp": 123456789
+                },
+                "protectedSettings": {
+                  "commandToExecute": "[parameters('Command')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DevTestLab/schedules",
+              "apiVersion": "2018-09-15",
+              "name": "[format('shutdown-computevm-{0}', parameters('vmName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "dailyRecurrence": {
+                  "time": "1900"
+                },
+                "timeZoneId": "W. Europe Standard Time",
+                "notificationSettings": {
+                  "status": "Disabled",
+                  "timeInMinutes": 30,
+                  "notificationLocale": "en"
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "hostname": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), '2021-03-01').osProfile.computerName]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubRgName')), 'Microsoft.Resources/deployments', 'HubVnet')]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "LinuxVM",
+        "count": "[length(range(1, parameters('LinNum')))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('LinuxVM-{0}-{1}-{2}', parameters('Seed'), parameters('rnd'), range(1, parameters('LinNum'))[copyIndex()])]",
+      "resourceGroup": "[parameters('HubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vmName": {
+            "value": "[format('{0}-{1}', parameters('LinVMname'), range(1, parameters('LinNum'))[copyIndex()])]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('HubVnetName')]"
+          },
+          "subnetName": {
+            "value": "[parameters('DMZsubnetName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "Command": {
+            "value": "[parameters('LinCommand')]"
+          },
+          "CustomDnsServer": {
+            "value": "[parameters('CustomDnsServer')]"
+          },
+          "vmSize": {
+            "value": "[parameters('vmsize')]"
+          },
+          "Publisher": {
+            "value": "Canonical"
+          },
+          "Offer": {
+            "value": "UbuntuServer"
+          },
+          "Sku": {
+            "value": "18.04-LTS"
+          },
+          "Version": {
+            "value": "latest"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.23.1.45101",
+              "templateHash": "6885378561096714219"
+            }
+          },
+          "parameters": {
+            "adminUsername": {
+              "type": "string",
+              "defaultValue": "gdradmin",
+              "metadata": {
+                "description": "Username for the Virtual Machine."
+              }
+            },
+            "adminPassword": {
+              "type": "securestring",
+              "minLength": 12,
+              "metadata": {
+                "description": "Password for the Virtual Machine."
+              }
+            },
+            "dnsLabelPrefix": {
+              "type": "string",
+              "defaultValue": "[toLower(format('{0}-{1}', parameters('vmName'), uniqueString(resourceGroup().id, parameters('vmName'))))]",
+              "metadata": {
+                "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
+              }
+            },
+            "Publisher": {
+              "type": "string",
+              "defaultValue": "MicrosoftWindowsServer"
+            },
+            "Offer": {
+              "type": "string",
+              "defaultValue": "WindowsServer"
+            },
+            "Sku": {
+              "type": "string",
+              "defaultValue": "2019-Datacenter"
+            },
+            "Version": {
+              "type": "string",
+              "defaultValue": "latest"
+            },
+            "vmSize": {
+              "type": "string",
+              "defaultValue": "Standard_B2ms",
+              "metadata": {
+                "description": "Size of the virtual machine."
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Location for all resources."
+              }
+            },
+            "vmName": {
+              "type": "string",
+              "defaultValue": "simple-vm",
+              "metadata": {
+                "description": "Name of the virtual machine."
+              }
+            },
+            "virtualNetworkName": {
+              "type": "string",
+              "metadata": {
+                "description": "(Existing) Virtual Network and subent where to join the VM"
+              }
+            },
+            "subnetName": {
+              "type": "string"
+            },
+            "Command": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "CustomDnsServer": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "publicIPAllocationMethod": {
+              "type": "string",
+              "defaultValue": "Dynamic",
+              "allowedValues": [
+                "Dynamic",
+                "Static"
+              ],
+              "metadata": {
+                "description": "Allocation method for the Public IP used to access the Virtual Machine."
+              }
+            }
+          },
+          "variables": {
+            "seed": "[substring(uniqueString(parameters('vmName'), parameters('virtualNetworkName'), parameters('subnetName')), 0, 5)]",
+            "nicName": "[format('{0}-Nic-{1}', parameters('vmName'), variables('seed'))]",
+            "publicIpName": "[format('{0}-PIP-{1}', parameters('vmName'), variables('seed'))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2021-02-01",
+              "name": "[variables('nicName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]"
+                      }
+                    }
+                  }
+                ],
+                "dnsSettings": {
+                  "dnsServers": "[if(equals(parameters('CustomDnsServer'), ''), createArray(), createArray(parameters('CustomDnsServer')))]"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2021-03-01",
+              "name": "[parameters('vmName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                  "computerName": "[parameters('vmName')]",
+                  "adminUsername": "[parameters('adminUsername')]",
+                  "adminPassword": "[parameters('adminPassword')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "[parameters('Publisher')]",
+                    "offer": "[parameters('Offer')]",
+                    "sku": "[parameters('Sku')]",
+                    "version": "[parameters('Version')]"
+                  },
+                  "osDisk": {
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                      "storageAccountType": "StandardSSD_LRS"
+                    }
+                  }
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+                    }
+                  ]
+                },
+                "diagnosticsProfile": {
+                  "bootDiagnostics": {
+                    "enabled": false
+                  }
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+              ]
+            },
+            {
+              "condition": "[not(equals(parameters('Command'), ''))]",
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2022-08-01",
+              "name": "[format('{0}/{1}', parameters('vmName'), 'CustomScriptExtension')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "skipDos2Unix": false,
+                  "timestamp": 123456789
+                },
+                "protectedSettings": {
+                  "commandToExecute": "[parameters('Command')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.DevTestLab/schedules",
+              "apiVersion": "2018-09-15",
+              "name": "[format('shutdown-computevm-{0}', parameters('vmName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "status": "Enabled",
+                "taskType": "ComputeVmShutdownTask",
+                "dailyRecurrence": {
+                  "time": "1900"
+                },
+                "timeZoneId": "W. Europe Standard Time",
+                "notificationSettings": {
+                  "status": "Disabled",
+                  "timeInMinutes": 30,
+                  "notificationLocale": "en"
+                },
+                "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "hostname": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')), '2021-03-01').osProfile.computerName]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubRgName')), 'Microsoft.Resources/deployments', 'HubVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('AKS-{0}', parameters('Seed'))]",
+      "resourceGroup": "[parameters('HubRgName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "clusterName": {
+            "value": "[format('AKS-{0}', parameters('Seed'))]"
+          },
+          "LAWName": {
+            "value": "[parameters('WorskspaceName')]"
+          },
+          "Seed": {
+            "value": "[parameters('Seed')]"
+          },
+          "SSHPublicKey": {
+            "value": "[parameters('SSHPublickey')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.23.1.45101",
+              "templateHash": "7694565586072146638"
+            }
+          },
+          "parameters": {
+            "clusterName": {
+              "type": "string",
+              "defaultValue": "aks101cluster",
+              "metadata": {
+                "description": "The name of the Managed Cluster resource."
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "The location of the Managed Cluster resource."
+              }
+            },
+            "dnsPrefix": {
+              "type": "string",
+              "defaultValue": "[format('{0}-dns', parameters('clusterName'))]",
+              "metadata": {
+                "description": "Optional DNS prefix to use with hosted Kubernetes API server FQDN."
+              }
+            },
+            "osDiskSizeGB": {
+              "type": "int",
+              "defaultValue": 128,
+              "minValue": 0,
+              "maxValue": 1023,
+              "metadata": {
+                "description": "Disk size (in GB) to provision for each of the agent pool nodes. This value ranges from 0 to 1023. Specifying 0 will apply the default disk size for that agentVMSize."
+              }
+            },
+            "agentCount": {
+              "type": "int",
+              "defaultValue": 1,
+              "minValue": 1,
+              "maxValue": 50,
+              "metadata": {
+                "description": "The number of nodes for the cluster."
+              }
+            },
+            "agentVMSize": {
+              "type": "string",
+              "defaultValue": "Standard_B2ms",
+              "metadata": {
+                "description": "The size of the Virtual Machine."
+              }
+            },
+            "linuxAdminUsername": {
+              "type": "string",
+              "defaultValue": "gdradmin",
+              "metadata": {
+                "description": "User name for the Linux Virtual Machines."
+              }
+            },
+            "LAWName": {
+              "type": "string"
+            },
+            "Seed": {
+              "type": "string"
+            },
+            "SSHPublicKey": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ContainerService/managedClusters",
+              "apiVersion": "2023-11-02-preview",
+              "name": "[parameters('clusterName')]",
+              "location": "[parameters('location')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "agentPoolProfiles": [
+                  {
+                    "name": "agentpool",
+                    "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+                    "count": "[parameters('agentCount')]",
+                    "vmSize": "[parameters('agentVMSize')]",
+                    "osType": "Linux",
+                    "osSKU": "CBLMariner",
+                    "mode": "System",
+                    "type": "VirtualMachineScaleSets",
+                    "minCount": 1,
+                    "maxCount": 3,
+                    "enableAutoScaling": true,
+                    "enableNodePublicIP": false,
+                    "securityProfile": {
+                      "enableSecureBoot": false,
+                      "enableVTPM": false,
+                      "sshAccess": "LocalUser"
+                    }
+                  }
+                ],
+                "linuxProfile": {
+                  "adminUsername": "[parameters('linuxAdminUsername')]",
+                  "ssh": {
+                    "publicKeys": [
+                      {
+                        "keyData": "[parameters('SSHPublicKey')]"
+                      }
+                    ]
+                  }
+                },
+                "servicePrincipalProfile": {
+                  "clientId": "msi"
+                },
+                "addonProfiles": {
+                  "azurepolicy": {
+                    "enabled": true
+                  },
+                  "omsagent": {
+                    "enabled": true,
+                    "config": {
+                      "logAnalyticsWorkspaceResourceID": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LAWName'))]",
+                      "useAADAuth": "true"
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "controlPlaneFQDN": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2023-11-02-preview').fqdn]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubRgName')), 'Microsoft.Resources/deployments', parameters('WorskspaceName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "WinVMsName": {
+      "type": "array",
+      "copy": {
+        "count": "[length(range(0, parameters('WinNum')))]",
+        "input": {
+          "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubRgName')), 'Microsoft.Resources/deployments', format('WindowsVM-{0}-{1}-{2}', parameters('Seed'), parameters('rnd'), range(1, parameters('WinNum'))[range(0, parameters('WinNum'))[copyIndex()]])), '2022-09-01').outputs.hostname.value]"
+        }
+      }
+    },
+    "LinVMsName": {
+      "type": "array",
+      "copy": {
+        "count": "[length(range(0, parameters('LinNum')))]",
+        "input": {
+          "name": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('HubRgName')), 'Microsoft.Resources/deployments', format('LinuxVM-{0}-{1}-{2}', parameters('Seed'), parameters('rnd'), range(1, parameters('LinNum'))[range(0, parameters('LinNum'))[copyIndex()]])), '2022-09-01').outputs.hostname.value]"
+        }
+      }
+    },
+    "HubVnetName": {
+      "type": "string",
+      "value": "[parameters('HubVnetName')]"
+    },
+    "PEsubnetName": {
+      "type": "string",
+      "value": "[parameters('PEsubnetName')]"
+    },
+    "KvName": {
+      "type": "string",
+      "value": "[parameters('KVname')]"
+    },
+    "laWname": {
+      "type": "string",
+      "value": "[parameters('WorskspaceName')]"
+    }
+  }
+}

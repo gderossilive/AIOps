@@ -1,0 +1,147 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.26.54.24096",
+      "templateHash": "16737152682378048160"
+    }
+  },
+  "parameters": {
+    "WorkspaceName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "Seed": {
+      "type": "string"
+    },
+    "VMlist": {
+      "type": "array"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2022-06-01",
+      "name": "[format('DCR-{0}', parameters('Seed'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "dataSources": {
+          "performanceCounters": [
+            {
+              "name": "VMInsightsPerfCounters",
+              "streams": [
+                "Microsoft-InsightsMetrics"
+              ],
+              "samplingFrequencyInSeconds": 60,
+              "counterSpecifiers": [
+                "\\VmInsights\\DetailedMetrics"
+              ]
+            }
+          ],
+          "extensions": [
+            {
+              "streams": [
+                "Microsoft-ServiceMap"
+              ],
+              "extensionName": "DependencyAgent",
+              "extensionSettings": {},
+              "name": "DependencyAgentDataSource"
+            }
+          ]
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('WorkspaceName'))]",
+              "name": "[parameters('WorkspaceName')]"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Microsoft-InsightsMetrics"
+            ],
+            "destinations": [
+              "[parameters('WorkspaceName')]"
+            ]
+          },
+          {
+            "streams": [
+              "Microsoft-ServiceMap"
+            ],
+            "destinations": [
+              "[parameters('WorkspaceName')]"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "DCR_Association",
+        "count": "[length(parameters('VMlist'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('DCR-{0}-{1}', parameters('VMlist')[copyIndex()], parameters('Seed'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "VMName": {
+            "value": "[parameters('VMlist')[copyIndex()]]"
+          },
+          "dataCollectionRuleId": {
+            "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-{0}', parameters('Seed')))]"
+          },
+          "Seed": {
+            "value": "[parameters('Seed')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.26.54.24096",
+              "templateHash": "4158700770196747452"
+            }
+          },
+          "parameters": {
+            "VMName": {
+              "type": "string"
+            },
+            "dataCollectionRuleId": {
+              "type": "string"
+            },
+            "Seed": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+              "apiVersion": "2022-06-01",
+              "scope": "[format('Microsoft.HybridCompute/machines/{0}', parameters('VMName'))]",
+              "name": "[format('DCRA-{0}', parameters('Seed'))]",
+              "properties": {
+                "dataCollectionRuleId": "[parameters('dataCollectionRuleId')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-{0}', parameters('Seed')))]"
+      ]
+    }
+  ]
+}
