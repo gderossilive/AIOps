@@ -32,10 +32,3 @@ az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azur
           -Password $ArcSp_pwd"
 
 
-
-
-# -------------- ARM ----------------------
-# az bicep build --file .\Main.bicep --outfile .\ARM\Main.json
-az bicep build --file .\src\DCR.bicep --outfile .\ARM\DCR.json
-
-

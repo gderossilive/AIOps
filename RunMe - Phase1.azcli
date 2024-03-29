@@ -1,11 +1,19 @@
 az login 
 az account set --subscription 89c1a3d1-e53c-4cf9-871a-9343d0221bb4 # MCAPS tenant
 
+# Seed is a random string used to create unique names for the resources
 $Seed=(-join ((48..57) + (97..122) | Get-Random -Count 5 | % {[char]$_}))
+
+# MyIP is the public IP address of the machine you are using to deploy the resources
 $MyIP="81.56.1.134"
+
+# location for the resources
 $location='northeurope'
+
+# password for the administrator account
 $adminPassword=(-join ((48..59) + (63..91) + (99..123) | Get-Random -count 15 | % {[char]$_})) 
-$SpokesNumber=0
+
+# MyObecjectId is the Object Id of the user that will have access to the administrator password of the VMs in the key vault
 $MyObecjectId='23015930-8d86-453a-9fb0-c81dd1df4902' # MCAPS - L'object Id dell'utente gderossi_microsoft.com#EXT#@MngEnvMCAP462233.onmicrosoft.com 
 
 # Create the resource group
@@ -14,15 +22,13 @@ az group create --name "$Seed-Demo" --location $location
 # Create the SSH key for the AKS Cluster
 $SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
 
-#$SSHPublickey=az sshkey show --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
-
 # Create the hub&spoke infrastructure
 az deployment sub create `
      --name "CoreDeploy-$Seed" `
      --location $location `
-     --template-file '.\ARM\Main.json' `
+     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/Main.json' `
      --parameters `
-          '.\Parameters.json' `
+          'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' `
           location=$location `
           Seed=$Seed `
           MyObjectId=$MyObecjectId `
@@ -30,7 +36,3 @@ az deployment sub create `
           adminPassword=$adminPassword `
           SSHPublickey=$SSHPublickey `
           WinNum=1 
-
-# -------------- ARM ----------------------
-# az bicep build --file .\Main.bicep --outfile .\ARM\Main.json
-# az bicep build --file .\src\DCR.bicep --outfile .\ARM\DCR.json
