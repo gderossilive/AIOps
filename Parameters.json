@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "Seed": {
+        "value": "abc"
+      },
+      "location": {
+        "value": "northeurope"
+      },
+      "HubVnetAddressPrefix": {
+        "value": "10.10.0.0/16"
+      },
+      "PEsubnetAddressPrefix": {
+        "value": "10.10.0.0/24"
+      },
+      "BastionSubnetAddressPrefix": {
+        "value": "10.10.1.64/26"
+      },
+      "FirewallSubnetAddressPrefix": {
+        "value": "10.10.2.0/24"
+      },
+      "FirewallManagementSubnetAddressPrefix": {
+        "value": "10.10.3.0/24"
+      },
+      "GatewaySubnetAddressPrefix": {
+        "value": "10.10.4.0/24"
+      },
+      "DMZsubnetAddressPrefix": {
+        "value": "10.10.5.0/24"
+      }
+    }
+}

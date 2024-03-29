@@ -1,0 +1,160 @@
+az login 
+
+az account set --subscription 89c1a3d1-e53c-4cf9-871a-9343d0221bb4 # MCAPS tenant
+
+$Seed=(-join ((48..57) + (97..122) | Get-Random -Count 5 | % {[char]$_}))
+$MyIP="81.56.1.134"
+$location='northeurope'
+$adminPassword=(-join ((48..59) + (63..91) + (99..123) | Get-Random -count 15 | % {[char]$_})) 
+$SpokesNumber=0
+$MyObecjectId='23015930-8d86-453a-9fb0-c81dd1df4902' # MCAPS - L'object Id dell'utente gderossi_microsoft.com#EXT#@MngEnvMCAP462233.onmicrosoft.com 
+
+# Create the resource group
+az group create --name "$Seed-Demo" --location $location
+
+# Create the SSH key for the AKS Cluster
+$SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
+
+#$SSHPublickey=az sshkey show --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
+
+# Create the hub&spoke infrastructure
+az deployment sub create `
+     --name "CoreDeploy-$Seed" `
+     --location $location `
+     --template-file '.\Main.bicep' `
+     --parameters `
+          '.\Parameters.json' `
+          location=$location `
+          Seed=$Seed `
+          MyObjectId=$MyObecjectId `
+          MyIPaddress=$MyIP `
+          adminPassword=$adminPassword `
+          SSHPublickey=$SSHPublickey `
+          WinNum=1 
+
+$HubVnetName=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.hubVNetName.value -o tsv
+$KvName=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.kvName.value -o tsv
+$HubSubnetName=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.pEsubnetName.value -o tsv
+$LAWname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value
+$ArcWinVMname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv
+$ArcVMlist='[\"'+$ArcWinVMname+'\"]'
+
+# Retrieve TenantID, SubscriptionID and SubscriptionName
+$tenantID=$(az account show --query tenantId -o tsv)
+$subscriptionID=$(az account show --query id -o tsv)
+$subscriptionName=$(az account show --query name -o tsv)
+
+# Create a service principal for the Arc resource group using a preferred name and role
+$sp_pwd=az ad sp create-for-rbac --name "ArcDeploySP-$Seed" `
+                         --role "Azure Connected Machine Onboarding" `
+                         --scopes "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo" `
+                         --query "password" -o tsv
+$sp_id=az ad sp list --filter "displayname eq 'ArcDeploySP-$Seed'" --query "[0].appId" -o tsv
+az role assignment create --assignee $sp_id --role "Kubernetes Cluster - Azure Arc Onboarding" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
+
+# To onboard on Arc this VM, run the output of the following command in a elevated powershell in the VM
+     Write-Host "Invoke-WebRequest -Uri https://raw.githubusercontent.com/gderossilive/Edge/main/Files/Step1-ArcForServer.ps1 ``
+          -OutFile 'c:\windows\temp\step1.ps1';cd \windows\temp;powershell ``
+          -File 'c:\windows\temp\step1.ps1' `` 
+          -SubscriptionId $subscriptionID  ``
+          -TenantId $tenantID  ``
+          -ResourceGroupName $Seed-Demo  ``
+          -Location $location  ``
+          -ServicePrincipalId $sp_id  ``
+          -Password $sp_pwd"
+
+# setup the AMA extension on the Arc enabled VM
+az connectedmachine extension create `
+	--machine-name $ArcWinVMname `
+	--location $location `
+	--name 'AzureMonitorWindowsAgent' `
+	--resource-group "$Seed-Demo" `
+	--type "AzureMonitorWindowsAgent" `
+	--publisher "Microsoft.Azure.Monitor" `
+	--enable-auto-upgrade true
+
+# setup the dependency agent on the Arc enabled VM
+az connectedmachine extension create `
+     --machine-name $ArcWinVMname `
+     --location $location `
+     --name 'DependencyAgentWindows' `
+     --resource-group "$Seed-Demo" `
+     --type "DependencyAgentWindows" `
+     --publisher "Microsoft.Azure.Monitoring.DependencyAgent" `
+     --settings '{\"enableAMA\": \"true\"}' `
+     --enable-auto-upgrade true
+
+# Create Data Collection Rules to send the Performance counter from Arc anabled VMs to the LA Workspace
+az deployment group create `
+     --name "AgentsDeploy-$Seed" `
+     --resource-group "$Seed-Demo" `
+     --template-file '.\src\DCR.bicep' `
+     --parameters `
+          WorkspaceName=$LAWname `
+          location=$location `
+          Seed=$Seed `
+          VMlist=$ArcVMlist
+
+# ------------------------------------------ End of File ----------------------------------------------------------------------
+
+# Create the Log Analytics Infra (LA Workspace + VMInsights solution + AMPLS + Private DNS Zones + Ruleset update)
+az deployment sub create `
+     --name="LAdeploy-$Seed" `
+     --location $location `
+     --template-file .\AMA\AzureLA.bicep `
+     --parameters `
+        HubRGname=$HubRGname `
+        HubVnetName=$HubVnetName `
+        HubSubnetName='PE-subnet' `
+        RulesetName=$RulesetName `
+        Seed=$Seed `
+        DnsIpAddress=$DnsIpAddress
+$LAWname=az deployment sub show --name "LAdeploy-$Seed" --query properties.outputs.laWname.value -o tsv
+$AMPLSname=az deployment sub show --name "LAdeploy-$Seed" --query properties.outputs.amplSname.value -o tsv
+
+# Deploy the OMS/MMA + Dependency Agent
+az deployment sub create `
+     --name "AgentsDeploy-$Seed" `
+     --location $location `
+     --template-file '.\Arc\VMsArcMmaAgentsDeploy.bicep' `
+     --parameters `
+          ArcRGname="$Seed-Arc" `
+          HubRGname=$HubRGname `
+          WorkspaceName=$LAWname `
+          location=$location `
+          VMlist=$ArcVMlist
+
+# Create Data Collection Rules to send the security events to the LA Workspace
+az deployment sub create `
+     --name "AgentsDeploy-$Seed" `
+     --location $location `
+     --template-file '.\Arc\VMsArcAmaAgentsDeploy.bicep' `
+     --parameters `
+          ArcRGname="$Seed-Arc" `
+          HubRGname=$HubRGname `
+          WorkspaceName=$LAWname `
+          location=$location `
+          Seed=$Seed `
+          AMPLSname=$AMPLSname `
+          VMlist=$ArcVMlist
+
+# remove the OMS/MMA agent from the VMs
+az connectedmachine extension delete `
+     --machine-name $ArcLinuxVMname `
+     --name "OmsAgentForLinux" `
+     --resource-group "$Seed-Arc"
+
+az connectedmachine extension delete `
+     --machine-name $ArcWinVMname `
+     --name "MicrosoftMonitoringAgent" `
+     --resource-group "$Seed-Arc"
+
+
+# -------------- ARM ----------------------
+az bicep build --file .\Core\CoreMain.bicep --outfile .\ARM\CoreDeploy.json
+az bicep build --file .\Arc\ArcMain.bicep --outfile .\ARM\ArmDeploy.json
+
+az network bastion rdp --name "bastion-jumpbox-n0d" --resource-group "n0d-Hub" --target-resource-id "/subscriptions/89c1a3d1-e53c-4cf9-871a-9343d0221bb4/resourceGroups/n0d-OnPrem/providers/Microsoft.Compute/virtualMachines/Win10-n0d"
+az network bastion rdp --name "bastion-jumpbox-n0d" --resource-group "n0d-Hub" --target-resource-id "/subscriptions/89c1a3d1-e53c-4cf9-871a-9343d0221bb4/resourceGroups/n0d-OnPrem/providers/Microsoft.Compute/virtualMachines/Win10-n0d-pj2"
+
+az network bastion rdp --name "bastion-jumpbox-0ih" --resource-group "0ih-BOLLA-Hub" --target-resource-id "/subscriptions/89c1a3d1-e53c-4cf9-871a-9343d0221bb4/resourceGroups/0ih-BOLLA-OnPrem/providers/Microsoft.Compute/virtualMachines/Win10-03"
