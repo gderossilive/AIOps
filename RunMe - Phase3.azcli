@@ -1,19 +1,13 @@
-az login 
-az account set --subscription 89c1a3d1-e53c-4cf9-871a-9343d0221bb4 # MCAPS tenant
-
-$Seed=""
-
+# Retrieve the correct 
 $LAWname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value
 $ArcWinVMname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv
 $ArcVMlist='[\"'+$ArcWinVMname+'\"]'
-$location=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.location.value -o tsv
-$subscriptionID=az account show --query id -o tsv
 
 # Create Data Collection Rules to send the Performance counter from Arc anabled VMs to the LA Workspace
 az deployment group create `
      --name "AgentsDeploy-$Seed" `
      --resource-group "$Seed-Demo" `
-     --template-file 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/DCR.json' `
+     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/DCR.json' `
      --parameters `
           WorkspaceName=$LAWname `
           location=$location `

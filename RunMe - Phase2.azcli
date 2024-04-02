@@ -1,12 +1,3 @@
-az login 
-az account set --subscription 89c1a3d1-e53c-4cf9-871a-9343d0221bb4 # MCAPS tenant
-
-$Seed=""
-
-$LAWname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value
-$ArcWinVMname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv
-$ArcVMlist='[\"'+$ArcWinVMname+'\"]'
-
 # Retrieve TenantID, SubscriptionID and SubscriptionName
 $tenantID=$(az account show --query tenantId -o tsv)
 $subscriptionID=$(az account show --query id -o tsv)
@@ -20,7 +11,9 @@ $ArcSp_pwd=az ad sp create-for-rbac --name "ArcDeploySP-$Seed" `
 $ArcSp_id=az ad sp list --filter "displayname eq 'ArcDeploySP-$Seed'" --query "[0].appId" -o tsv
 az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azure Arc Onboarding" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
 
-# To onboard on Arc this VM, run the output of the following command in a elevated powershell in the VM
+# To onboard on Arc this VM: 
+#   1 - Open an RDP session on the VM 
+#   2 - Run the output of the following command in a elevated powershell
      Write-Host "Invoke-WebRequest -Uri https://raw.githubusercontent.com/gderossilive/Edge/main/Files/Step1-ArcForServer.ps1 ``
           -OutFile 'c:\windows\temp\step1.ps1';cd \windows\temp;powershell ``
           -File 'c:\windows\temp\step1.ps1' `` 
@@ -30,5 +23,3 @@ az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azur
           -Location $location  ``
           -ServicePrincipalId $ArcSp_id  ``
           -Password $ArcSp_pwd"
-
-

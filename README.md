@@ -17,7 +17,7 @@ I prerequisiti per poter installare questa demo sono:
 
 Il setup di questo copilot richiede una serie di passaggi:
 - Setup delle risorse utili per la demo (AKS, VM, Log Analytics, etc.)
-- Abilitazione Arc per la VM
+- Onboarding Arc della VM
 - Installazione della Data Collection Rule (DCR) e le relative extensions sull'Arc-Enabled VM
 - Setup del Copilot all'interno di Copilot Studio e PowerAutomate
 - Pubblicazione del Copilot all'interno di Microsoft Teams
@@ -76,5 +76,21 @@ Di seguito i passi principali eseguiti da questo script Azure CLI:
             WinNum=1 
 ```
 
+## Onboarding Arc della VM
+L'obiettivo di questos cript è automatizzare il più possibile l'onboarding di una VM su Azure Arc. Inizia perciò con la creazione di un service principal, gli assegna il ruolo "Azure Connected Machine Onboarding" e finisce fornendo le istruzioni per completare l'onboarding
 
+### Esecuzione dello script RunMe - Phase1.azcli
+```azcli
+    # Retrieve TenantID, SubscriptionID and SubscriptionName
+    $tenantID=$(az account show --query tenantId -o tsv)
+    $subscriptionID=$(az account show --query id -o tsv)
+    $subscriptionName=$(az account show --query name -o tsv)
 
+    # Create a service principal for the Arc resource group using a preferred name and role
+    $ArcSp_pwd=az ad sp create-for-rbac --name "ArcDeploySP-$Seed" `
+                            --role "Azure Connected Machine Onboarding" `
+                            --scopes "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo" `
+                            --query "password" -o tsv
+    $ArcSp_id=az ad sp list --filter "displayname eq 'ArcDeploySP-$Seed'" --query "[0].appId" -o tsv
+    az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azure Arc Onboarding" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
+```
