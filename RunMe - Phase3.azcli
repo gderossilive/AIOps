@@ -1,4 +1,4 @@
-# Retrieve the correct 
+# Retrieve the Log Analytics Workspace name and the Arc enabled VM name from the deployment outputs
 $LAWname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value
 $ArcWinVMname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv
 $ArcVMlist='[\"'+$ArcWinVMname+'\"]'
@@ -34,11 +34,3 @@ az connectedmachine extension create `
      --publisher "Microsoft.Azure.Monitoring.DependencyAgent" `
      --settings '{\"enableAMA\": \"true\"}' `
      --enable-auto-upgrade true
-
-# Create a service principal for the Copilot with the Reader RBAC role on the Resource Group
-$CopSp_pwd=az ad sp create-for-rbac --name "CopilotReaderSP-$Seed" `
-                         --role "Reader" `
-                         --scopes "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo" `
-                         --query "password" -o tsv
-$CopSp_id=az ad sp list --filter "displayname eq 'CopilotReaderSP-$Seed'" --query "[0].appId" -o tsv
-az role assignment create --assignee $CopSp_id --role "Reader" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
