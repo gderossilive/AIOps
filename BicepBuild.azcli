@@ -1,3 +1,4 @@
 # Bicep files are compiled to ARM templates using the az bicep build command.
 az bicep build --file .\Main.bicep --outfile .\ARM\Main.json
 az bicep build --file .\src\DCR.bicep --outfile .\ARM\DCR.json
+az bicep build --file .\src\OpenAI.bicep --outfile .\ARM\OpenAI.json

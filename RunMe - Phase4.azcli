@@ -18,7 +18,7 @@ az role assignment create --assignee $CopSp_id --role "Key Vault Secrets User" -
 az deployment group create `
      --name "OpenAIDeploy-$Seed" `
      --resource-group "$Seed-Demo" `
-     --template-file '.\src\OpenAI.bicep' `
+     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/OpenAI.json' `
      --parameters `
           location='westeurope' `
           SPsecret=$CopSp_pwd `
