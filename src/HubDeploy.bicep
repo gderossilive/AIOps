@@ -99,7 +99,8 @@ module KV './KV.bicep' = {
     keyVaultName: KVname
     objectId: MyObjectId
     location: location
-    MyIPaddress: MyIPaddress
+    principalId: MyObjectId
+    Seed: Seed
   }
 }
 

@@ -5,20 +5,20 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "18200289422268557842"
+      "templateHash": "12606180793358549593"
     }
   },
   "parameters": {
     "OpenAIName": {
       "type": "string",
-      "defaultValue": "[format('OpenAI-{0}', uniqueString(resourceGroup().id, newGuid()))]",
+      "defaultValue": "[format('OAISrv-{0}-{1}', parameters('Seed'), substring(uniqueString(resourceGroup().id, newGuid()), 0, 5))]",
       "metadata": {
         "description": "That name is the name of our application. It has to be unique.Type a name followed by your resource group name. (<name>-<resourceGroupName>)"
       }
     },
     "OpenAIdeploymentName": {
       "type": "string",
-      "defaultValue": "[format('OAIDeploy-{0}', newGuid())]"
+      "defaultValue": "[format('OAIDeploy-{0}-{1}', parameters('Seed'), substring(uniqueString(resourceGroup().id, newGuid()), 0, 5))]"
     },
     "location": {
       "type": "string",

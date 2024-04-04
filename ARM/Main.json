@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "18227679125847843305"
+      "templateHash": "5249514455006301611"
     }
   },
   "parameters": {
@@ -192,7 +192,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "13185440546700809785"
+              "templateHash": "17026989333391278743"
             }
           },
           "parameters": {
@@ -394,8 +394,11 @@
                   "location": {
                     "value": "[parameters('location')]"
                   },
-                  "MyIPaddress": {
-                    "value": "[parameters('MyIPaddress')]"
+                  "principalId": {
+                    "value": "[parameters('MyObjectId')]"
+                  },
+                  "Seed": {
+                    "value": "[parameters('Seed')]"
                   }
                 },
                 "template": {
@@ -405,7 +408,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "799439877070559792"
+                      "templateHash": "5945606423426966545"
                     }
                   },
                   "parameters": {
@@ -487,8 +490,15 @@
                         "description": "Specifies whether the key vault is a standard vault or a premium vault."
                       }
                     },
-                    "MyIPaddress": {
+                    "Seed": {
                       "type": "string"
+                    },
+                    "principalId": {
+                      "type": "string"
+                    },
+                    "roleDefinitionId": {
+                      "type": "string",
+                      "defaultValue": "00482a5a-887f-4fb3-b363-3b7fe8e74483"
                     }
                   },
                   "resources": [
@@ -518,6 +528,15 @@
                           "family": "A"
                         },
                         "publicNetworkAccess": "Enabled"
+                      }
+                    },
+                    {
+                      "type": "Microsoft.Authorization/roleAssignments",
+                      "apiVersion": "2022-04-01",
+                      "name": "[format('RA-{0}', parameters('Seed'))]",
+                      "properties": {
+                        "principalId": "[parameters('principalId')]",
+                        "roleDefinitionId": "[parameters('roleDefinitionId')]"
                       }
                     }
                   ]

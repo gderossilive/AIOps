@@ -38,7 +38,9 @@ param secretsPermissions array = [
 ])
 param skuName string = 'standard'
 
-param MyIPaddress string
+param Seed string
+param principalId string 
+param roleDefinitionId string = '00482a5a-887f-4fb3-b363-3b7fe8e74483' // Azure Key Vault Administrator
 
 resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
@@ -64,5 +66,13 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
       family: 'A'
     }
     publicNetworkAccess: 'Enabled'
+  }
+}
+
+resource RoleAssignement 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: 'RA-${Seed}'
+  properties: {
+    principalId: principalId
+    roleDefinitionId: roleDefinitionId
   }
 }
