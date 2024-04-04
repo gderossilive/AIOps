@@ -40,13 +40,14 @@ param skuName string = 'standard'
 
 param MyIPaddress string
 
-resource kv 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
+resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: keyVaultName
   location: location
   properties: {
     enabledForDeployment: enabledForDeployment
     enabledForDiskEncryption: enabledForDiskEncryption
     enabledForTemplateDeployment: enabledForTemplateDeployment
+    enableRbacAuthorization: true
     tenantId: tenantId
     accessPolicies: [
       {
@@ -62,15 +63,6 @@ resource kv 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
       name: skuName
       family: 'A'
     }
-    networkAcls: {
-      defaultAction: 'Deny'
-      bypass: 'AzureServices'
-      ipRules: [
-        {
-          value: '${MyIPaddress}/32'
-        }
-      ]
-      virtualNetworkRules: []
-    }
+    publicNetworkAccess: 'Enabled'
   }
 }

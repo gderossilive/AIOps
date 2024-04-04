@@ -25,5 +25,11 @@ az deployment group create `
           KVname=$KVname `
           Seed=$Seed 
 
-az deployment sub show --name "OpenAIDeploy-$Seed" --query properties.outputs
+$openAIserviceName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv
+$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
 
+Write-Host "OpenAI ServicePrincipal Id: $CopSp_id"
+Write-Host "OpenAI ServicePrincipal Secret: $CopSp_pwd"
+Write-Host "Tenant Id: $tenantID"
+Write-Host "Key Vault Name: $KVname"
+Write-Host "Log Analytics Workspace Name: $LAWname"
