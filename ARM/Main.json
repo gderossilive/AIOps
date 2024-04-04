@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.23.1.45101",
-      "templateHash": "4406422134370190827"
+      "version": "0.26.54.24096",
+      "templateHash": "18227679125847843305"
     }
   },
   "parameters": {
@@ -191,8 +191,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.23.1.45101",
-              "templateHash": "6313189800666330118"
+              "version": "0.26.54.24096",
+              "templateHash": "13185440546700809785"
             }
           },
           "parameters": {
@@ -404,8 +404,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.23.1.45101",
-                      "templateHash": "16335059149479221238"
+                      "version": "0.26.54.24096",
+                      "templateHash": "799439877070559792"
                     }
                   },
                   "parameters": {
@@ -494,13 +494,14 @@
                   "resources": [
                     {
                       "type": "Microsoft.KeyVault/vaults",
-                      "apiVersion": "2021-04-01-preview",
+                      "apiVersion": "2023-07-01",
                       "name": "[parameters('keyVaultName')]",
                       "location": "[parameters('location')]",
                       "properties": {
                         "enabledForDeployment": "[parameters('enabledForDeployment')]",
                         "enabledForDiskEncryption": "[parameters('enabledForDiskEncryption')]",
                         "enabledForTemplateDeployment": "[parameters('enabledForTemplateDeployment')]",
+                        "enableRbacAuthorization": true,
                         "tenantId": "[parameters('tenantId')]",
                         "accessPolicies": [
                           {
@@ -516,16 +517,7 @@
                           "name": "[parameters('skuName')]",
                           "family": "A"
                         },
-                        "networkAcls": {
-                          "defaultAction": "Deny",
-                          "bypass": "AzureServices",
-                          "ipRules": [
-                            {
-                              "value": "[format('{0}/32', parameters('MyIPaddress'))]"
-                            }
-                          ],
-                          "virtualNetworkRules": []
-                        }
+                        "publicNetworkAccess": "Enabled"
                       }
                     }
                   ]
@@ -578,8 +570,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.23.1.45101",
-              "templateHash": "16420748186983061556"
+              "version": "0.26.54.24096",
+              "templateHash": "8381255967310592985"
             }
           },
           "parameters": {
@@ -633,7 +625,7 @@
         "mode": "Incremental",
         "parameters": {
           "vmName": {
-            "value": "[format('{0}-{1}', parameters('WinVMname'), range(1, parameters('WinNum'))[copyIndex()])]"
+            "value": "[format('DC-{0}', range(1, parameters('WinNum'))[copyIndex()])]"
           },
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
@@ -675,8 +667,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.23.1.45101",
-              "templateHash": "6885378561096714219"
+              "version": "0.26.54.24096",
+              "templateHash": "11383994301999769600"
             }
           },
           "parameters": {
@@ -957,8 +949,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.23.1.45101",
-              "templateHash": "6885378561096714219"
+              "version": "0.26.54.24096",
+              "templateHash": "11383994301999769600"
             }
           },
           "parameters": {
@@ -1214,8 +1206,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.23.1.45101",
-              "templateHash": "7694565586072146638"
+              "version": "0.26.54.24096",
+              "templateHash": "5503127497866786095"
             }
           },
           "parameters": {

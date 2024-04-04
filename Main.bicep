@@ -86,7 +86,7 @@ module WindowsVM 'src/AzureVM.bicep' = [for i in range(1, WinNum): {
   name: 'WindowsVM-${Seed}-${rnd}-${i}'
   scope: HubRG
   params: {
-    vmName: '${WinVMname}-${i}'
+    vmName: 'DC-${i}'
     adminPassword: adminPassword   
     virtualNetworkName: HubVnetName
     subnetName: DMZsubnetName

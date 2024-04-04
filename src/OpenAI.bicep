@@ -1,6 +1,6 @@
 @description('That name is the name of our application. It has to be unique.Type a name followed by your resource group name. (<name>-<resourceGroupName>)')
-param OpenAIName string = 'OpenAI-${uniqueString(resourceGroup().id, newGuid())}'
-param OpenAIdeploymentName string = 'OAIDeploy-${newGuid()}'
+param OpenAIName string = 'OAISrv-${Seed}-${substring(uniqueString(resourceGroup().id, newGuid()),0,5)}'
+param OpenAIdeploymentName string = 'OAIDeploy-${Seed}-${substring(uniqueString(resourceGroup().id, newGuid()),0,5)}'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location

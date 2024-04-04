@@ -19,7 +19,7 @@ Il setup di questo copilot richiede una serie di passaggi:
 - Setup delle risorse utili per la demo (AKS, VM, Log Analytics, etc.)
 - Onboarding Arc della VM
 - Installazione della Data Collection Rule (DCR) e le relative extensions sull'Arc-Enabled VM
-- Setup del Copilot all'interno di Copilot Studio e PowerAutomate
+- Import del Copilot all'interno di Copilot Studio via PowerAutomate
 - Pubblicazione del Copilot all'interno di Microsoft Teams
 
 ## 1- Setup delle risorse utili per la demo
@@ -94,3 +94,43 @@ L'obiettivo di questos cript è automatizzare il più possibile l'onboarding di 
     $ArcSp_id=az ad sp list --filter "displayname eq 'ArcDeploySP-$Seed'" --query "[0].appId" -o tsv
     az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azure Arc Onboarding" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
 ```
+## Import del Copilot all'interno di Copilot Studio via PowerAutomate
+
+### Creazione delle Connections
+Per poter creare le Connections necessarie (Key Vault e Azure Monitor) è necessario: 
+
+- aprire Powerautomate (https://make.powerautomate.com/)
+- Creare la Connections per Azure Key Vault
+    - selezionare Connections
+    - Cliccare su "New Connection"
+    - In Search scrivere Key Vault
+    - Selezionare Azure Key Vault
+    - Come 'Authentication type' scegliere 'Service principal authentication'
+    - Compilare i campi (Client ID, Client Secret e Tenant ID) con gli output dello script 'RunMe . Phase4'
+    - Finita la creazione, per comodità, rinominare la connection appena creata con il nome dell'Azure Key Vault
+- Creare la Connections per Azure Monitor Logs
+    - selezionare Connections
+    - Cliccare su "New Connection"
+    - In Search scrivere Monitor Logs
+    - Selezionare Azure Monitor Logs
+    - Come 'Authentication type' scegliere 'Service principal authentication'
+    - Compilare i campi (Client ID, Client Secret e Tenant ID) con gli output dello script 'RunMe - Phase4'
+    - Finita la creazione, per comodità, rinominare la connection appena creata con il nome dell'Azure Key Vault
+
+### Import della Solution
+Per poter importare la Solution è necessario:
+
+- Selezionare Solutions
+- Cliccare su 'Import solution'
+- Cliccare su Browse e scegliere il file zip contenente la Solution
+- Cliccare Next
+- Cliccare Next
+- Per ogni Connection scegliere quella corrispondete precedentemente creata
+- Cliccare Import
+- Aspettare che l'operazione di import finisca
+
+### Verifca dell'import a configurazione del Copilot
+Se l'import è finito con successo, basterò andare su https://copilotstudio.preview.microsoft.com/ per vedere il copilot Operations appena creato.
+
+Per la configurazione del Copilot:
+
