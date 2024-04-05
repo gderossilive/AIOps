@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "906685254588236742"
+      "templateHash": "11075363530530193142"
     }
   },
   "parameters": {
@@ -96,7 +96,10 @@
           "extensions": [
             {
               "streams": [
-                "Microsoft-ContainerInsights-Group-Default"
+                "Microsoft-ContainerLogV2",
+                "Microsoft-KubeEvents",
+                "Microsoft-KubePodInventory",
+                "Microsoft-ContainerLog"
               ],
               "extensionName": "ContainerInsights",
               "extensionSettings": {

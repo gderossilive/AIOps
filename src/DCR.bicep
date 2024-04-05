@@ -77,7 +77,10 @@ resource DCR_ContainerInsights 'Microsoft.Insights/dataCollectionRules@2022-06-0
       extensions: [
         {
           streams: [
-            'Microsoft-ContainerInsights-Group-Default'
+            'Microsoft-ContainerLogV2'
+            'Microsoft-KubeEvents'
+            'Microsoft-KubePodInventory'
+            'Microsoft-ContainerLog'
           ]
           extensionName: 'ContainerInsights'
           extensionSettings: {
