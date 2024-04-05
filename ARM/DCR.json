@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "3685367681652789955"
+      "templateHash": "906685254588236742"
     }
   },
   "parameters": {
@@ -99,7 +99,13 @@
                 "Microsoft-ContainerInsights-Group-Default"
               ],
               "extensionName": "ContainerInsights",
-              "extensionSettings": {},
+              "extensionSettings": {
+                "dataCollectionSettings": {
+                  "interval": "10m",
+                  "namespaceFilteringMode": "Off",
+                  "enableContainerLogV2": true
+                }
+              },
               "name": "ContainerInsightsExtension"
             }
           ]

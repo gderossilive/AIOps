@@ -80,7 +80,13 @@ resource DCR_ContainerInsights 'Microsoft.Insights/dataCollectionRules@2022-06-0
             'Microsoft-ContainerInsights-Group-Default'
           ]
           extensionName: 'ContainerInsights'
-          extensionSettings: {}
+          extensionSettings: {
+            dataCollectionSettings: {
+              interval: '10m'
+              namespaceFilteringMode: 'Off'
+              enableContainerLogV2: true
+            }
+          }
           name: 'ContainerInsightsExtension'
         }
       ]
