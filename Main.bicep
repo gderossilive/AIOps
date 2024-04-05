@@ -134,7 +134,6 @@ module AKS 'src/AKS.bicep' = {
   }
 }
 
-
 output WinVMsName array = [for i in range(0,WinNum):{
   name: WindowsVM[i].outputs.hostname
 }]
@@ -145,4 +144,5 @@ output LinVMsName array = [for i in range(0,LinNum):{
 output HubVnetName string = HubVnetName
 output PEsubnetName string = PEsubnetName
 output KvName string =  KVname
+output AKSName string = AKS.name
 output laWname string = WorskspaceName

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "5249514455006301611"
+      "templateHash": "8483912071506194072"
     }
   },
   "parameters": {
@@ -1396,6 +1396,10 @@
     "KvName": {
       "type": "string",
       "value": "[parameters('KVname')]"
+    },
+    "AKSName": {
+      "type": "string",
+      "value": "[format('AKS-{0}', parameters('Seed'))]"
     },
     "laWname": {
       "type": "string",

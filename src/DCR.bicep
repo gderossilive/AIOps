@@ -2,13 +2,14 @@ param WorkspaceName string
 param location string
 param Seed string
 param VMlist array
+param AKSlist array
 
 resource LAW 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
   name: WorkspaceName
 }
 
 resource DCR_VMInsights 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
-  name: 'DCR-${Seed}'
+  name: 'DCR-VM-${Seed}'
   location: location
   properties: {
 //    dataCollectionEndpointId: DCE.id
@@ -27,12 +28,13 @@ resource DCR_VMInsights 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
       ]
       extensions: [
         {
+          name: 'DependencyAgentDataSource'
           streams: [
             'Microsoft-ServiceMap'
           ]
           extensionName: 'DependencyAgent'
           extensionSettings: {}
-          name: 'DependencyAgentDataSource'
+
         }
       ]
     }
@@ -65,12 +67,61 @@ resource DCR_VMInsights 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
   }
 }
 
-module DCR_Association 'DCR-Association.bicep' = [for VMName in VMlist:{
+resource DCR_ContainerInsights 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
+  name: 'DCR-AKS-${Seed}'
+  location: location
+  kind: 'Linux'
+  properties: {
+    dataSources: {
+      syslog: []
+      extensions: [
+        {
+          streams: [
+            'Microsoft-ContainerInsights-Group-Default'
+          ]
+          extensionName: 'ContainerInsights'
+          extensionSettings: {}
+          name: 'ContainerInsightsExtension'
+        }
+      ]
+    }
+    destinations: {
+      logAnalytics: [
+        {
+          workspaceResourceId: LAW.id
+          name: 'ciworkspace'
+        }
+      ]
+    }
+    dataFlows: [
+      {
+        streams: [
+          'Microsoft-ContainerInsights-Group-Default'
+        ]
+        destinations: [
+          'ciworkspace'
+        ]
+      }
+    ]
+  }
+}
+
+module DCR_VM_Association 'DCR-VM-Association.bicep' = [for VMName in VMlist:{
   name: 'DCR-${VMName}-${Seed}'
   params: {
     VMName: VMName
 //    dataCollectionEndpointId: DCR_VMInsights.id
     dataCollectionRuleId: DCR_VMInsights.id
+    Seed: Seed
+  }
+}]
+
+module DCR_AKS_Association 'DCR-AKS-Association.bicep' = [for AKSName in AKSlist:{
+  name: 'DCR-${AKSName}-${Seed}'
+  params: {
+    AKSname: AKSName
+//    dataCollectionEndpointId: DCR_VMInsights.id
+    dataCollectionRuleId: DCR_ContainerInsights.id
     Seed: Seed
   }
 }]

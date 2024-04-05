@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "16737152682378048160"
+      "templateHash": "3685367681652789955"
     }
   },
   "parameters": {
@@ -20,13 +20,16 @@
     },
     "VMlist": {
       "type": "array"
+    },
+    "AKSlist": {
+      "type": "array"
     }
   },
   "resources": [
     {
       "type": "Microsoft.Insights/dataCollectionRules",
       "apiVersion": "2022-06-01",
-      "name": "[format('DCR-{0}', parameters('Seed'))]",
+      "name": "[format('DCR-VM-{0}', parameters('Seed'))]",
       "location": "[parameters('location')]",
       "properties": {
         "dataSources": {
@@ -44,12 +47,12 @@
           ],
           "extensions": [
             {
+              "name": "DependencyAgentDataSource",
               "streams": [
                 "Microsoft-ServiceMap"
               ],
               "extensionName": "DependencyAgent",
-              "extensionSettings": {},
-              "name": "DependencyAgentDataSource"
+              "extensionSettings": {}
             }
           ]
         },
@@ -82,8 +85,48 @@
       }
     },
     {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "apiVersion": "2022-06-01",
+      "name": "[format('DCR-AKS-{0}', parameters('Seed'))]",
+      "location": "[parameters('location')]",
+      "kind": "Linux",
+      "properties": {
+        "dataSources": {
+          "syslog": [],
+          "extensions": [
+            {
+              "streams": [
+                "Microsoft-ContainerInsights-Group-Default"
+              ],
+              "extensionName": "ContainerInsights",
+              "extensionSettings": {},
+              "name": "ContainerInsightsExtension"
+            }
+          ]
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('WorkspaceName'))]",
+              "name": "ciworkspace"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Microsoft-ContainerInsights-Group-Default"
+            ],
+            "destinations": [
+              "ciworkspace"
+            ]
+          }
+        ]
+      }
+    },
+    {
       "copy": {
-        "name": "DCR_Association",
+        "name": "DCR_VM_Association",
         "count": "[length(parameters('VMlist'))]"
       },
       "type": "Microsoft.Resources/deployments",
@@ -99,7 +142,7 @@
             "value": "[parameters('VMlist')[copyIndex()]]"
           },
           "dataCollectionRuleId": {
-            "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-{0}', parameters('Seed')))]"
+            "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-VM-{0}', parameters('Seed')))]"
           },
           "Seed": {
             "value": "[parameters('Seed')]"
@@ -112,7 +155,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "4158700770196747452"
+              "templateHash": "1397116905275369187"
             }
           },
           "parameters": {
@@ -131,7 +174,7 @@
               "type": "Microsoft.Insights/dataCollectionRuleAssociations",
               "apiVersion": "2022-06-01",
               "scope": "[format('Microsoft.HybridCompute/machines/{0}', parameters('VMName'))]",
-              "name": "[format('DCRA-{0}', parameters('Seed'))]",
+              "name": "[format('DCRA-VM-{0}', parameters('Seed'))]",
               "properties": {
                 "dataCollectionRuleId": "[parameters('dataCollectionRuleId')]"
               }
@@ -140,7 +183,70 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-{0}', parameters('Seed')))]"
+        "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-VM-{0}', parameters('Seed')))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "DCR_AKS_Association",
+        "count": "[length(parameters('AKSlist'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('DCR-{0}-{1}', parameters('AKSlist')[copyIndex()], parameters('Seed'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "AKSname": {
+            "value": "[parameters('AKSlist')[copyIndex()]]"
+          },
+          "dataCollectionRuleId": {
+            "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-AKS-{0}', parameters('Seed')))]"
+          },
+          "Seed": {
+            "value": "[parameters('Seed')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.26.54.24096",
+              "templateHash": "17124938486456331775"
+            }
+          },
+          "parameters": {
+            "AKSname": {
+              "type": "string"
+            },
+            "dataCollectionRuleId": {
+              "type": "string"
+            },
+            "Seed": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+              "apiVersion": "2022-06-01",
+              "scope": "[format('Microsoft.ContainerService/managedClusters/{0}', parameters('AKSname'))]",
+              "name": "[format('DCRA-AKS-{0}', parameters('Seed'))]",
+              "properties": {
+                "description": "Association of data collection rule. Deleting this association will break the data collection for this AKS Cluster.",
+                "dataCollectionRuleId": "[parameters('dataCollectionRuleId')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-AKS-{0}', parameters('Seed')))]"
       ]
     }
   ]
