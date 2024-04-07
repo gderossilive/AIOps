@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "9458335530394075948"
+      "templateHash": "533358371058072311"
     }
   },
   "parameters": {
@@ -1229,7 +1229,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "5503127497866786095"
+              "templateHash": "5060252384253228870"
             }
           },
           "parameters": {
@@ -1344,13 +1344,6 @@
                 "addonProfiles": {
                   "azurepolicy": {
                     "enabled": true
-                  },
-                  "omsagent": {
-                    "enabled": true,
-                    "config": {
-                      "logAnalyticsWorkspaceResourceID": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('LAWName'))]",
-                      "useAADAuth": "true"
-                    }
                   }
                 }
               }

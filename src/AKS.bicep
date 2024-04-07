@@ -77,13 +77,13 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-11-02-preview' = {
       azurepolicy: {
         enabled: true
       }
-      omsagent: {
+/*      omsagent: {
         enabled: true
         config: {
           logAnalyticsWorkspaceResourceID: LAW.id
           useAADAuth: 'true'
         }
-      }
+      }*/
     }
   }
 }

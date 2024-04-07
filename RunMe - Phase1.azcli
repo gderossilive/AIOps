@@ -36,25 +36,3 @@ az deployment sub create `
           adminPassword=$adminPassword `
           SSHPublickey=$SSHPublickey `
           WinNum=1 
-
-# get the log analytics workspace shared key
-$LawKey=az monitor log-analytics workspace get-shared-keys --name "LA-$Seed" --resource-group "$Seed-Demo" --query primarySharedKey -o tsv 
-
-# get log analytics workspace id
-$LawId=az monitor log-analytics workspace show --name "LA-$Seed" --resource-group "$Seed-Demo" --query customerId -o tsv
-
-# get AKS cluster name
-$AksName=az aks show --resource-group "$Seed-Demo" --name "AKS-$Seed" --query name -o tsv
-
-
-# connect to the AKS cluster
-#az aks get-credentials --resource-group "$Seed-Demo" --name "AKS-$Seed" --overwrite-existing
-
-# Configure data collection in Container insights using ConfigMap
-#kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/container-azm-ms-agentconfig.yaml'
-
-#kubectl describe pod ama-logs-rs-98bf5864c-8zvst -n kube-system
-
-#  set up and use Azure Monitor - Containers to monitor the health and performance of your workloads deployed to Kubernetes
-helm repo add microsoft https://microsoft.github.io/charts/repo
-helm install --generate-name --set amalogs.secret.wsid=$LawId,amalogs.secret.key=$LawKey,amalogs.env.clusterName=$AksName  microsoft/azuremonitor-containers
