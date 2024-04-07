@@ -36,3 +36,8 @@ az deployment sub create `
           adminPassword=$adminPassword `
           SSHPublickey=$SSHPublickey `
           WinNum=1 
+
+# connect to the AKS cluster
+az aks get-credentials --resource-group "$Seed-Demo" --name "AKS-$Seed" --overwrite-existing
+
+kubectl apply -f <configmap_yaml_file.yaml>
