@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "16686774327547949561"
+      "templateHash": "9458335530394075948"
     }
   },
   "parameters": {
@@ -192,7 +192,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "12507295943940444307"
+              "templateHash": "8501510806444322434"
             }
           },
           "parameters": {
@@ -408,7 +408,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.26.54.24096",
-                      "templateHash": "2140239313859411893"
+                      "templateHash": "3247914456810320552"
                     }
                   },
                   "parameters": {
@@ -536,7 +536,7 @@
                       "name": "[guid(parameters('Seed'), parameters('keyVaultName'), parameters('principalId'))]",
                       "properties": {
                         "principalId": "[parameters('principalId')]",
-                        "roleDefinitionId": "[parameters('roleDefinitionId')]"
+                        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]"
                       },
                       "dependsOn": [
                         "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
