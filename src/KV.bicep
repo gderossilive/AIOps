@@ -73,6 +73,6 @@ resource RoleAssignement 'Microsoft.Authorization/roleAssignments@2022-04-01' = 
   name: guid(Seed, kv.name, principalId)
   properties: {
     principalId: principalId
-    roleDefinitionId: roleDefinitionId
+    roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions',roleDefinitionId) 
   }
 }
