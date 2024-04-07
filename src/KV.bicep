@@ -70,7 +70,7 @@ resource kv 'Microsoft.KeyVault/vaults@2023-07-01' = {
 }
 
 resource RoleAssignement 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: 'RA-${Seed}'
+  name: guid(Seed, kv.name, principalId)
   properties: {
     principalId: principalId
     roleDefinitionId: roleDefinitionId
