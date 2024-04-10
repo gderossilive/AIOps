@@ -111,7 +111,7 @@ resource DCR_ContainerInsights 'Microsoft.Insights/dataCollectionRules@2022-06-0
     ]
   }
 }
-/*
+
 module DCR_VM_Association 'DCR-VM-Association.bicep' = [for VMName in VMlist:{
   name: 'DCR-${VMName}-${Seed}'
   params: {
@@ -120,10 +120,10 @@ module DCR_VM_Association 'DCR-VM-Association.bicep' = [for VMName in VMlist:{
     dataCollectionRuleId: DCR_VMInsights.id
     Seed: Seed
   }
-}]*/
+}]
 
 module DCR_AKS_Association 'DCR-AKS-Association.bicep' = [for AKSName in AKSlist:{
-  name: 'DCR-${AKSName}-${Seed}'
+  name: 'DCRA-${AKSName}-${Seed}'
   params: {
     AKSname: AKSName
 //    dataCollectionEndpointId: DCR_VMInsights.id

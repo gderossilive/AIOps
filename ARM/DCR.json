@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "2820754589460388257"
+      "templateHash": "4414756986659450576"
     }
   },
   "parameters": {
@@ -132,12 +132,74 @@
     },
     {
       "copy": {
+        "name": "DCR_VM_Association",
+        "count": "[length(parameters('VMlist'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "[format('DCR-{0}-{1}', parameters('VMlist')[copyIndex()], parameters('Seed'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "VMName": {
+            "value": "[parameters('VMlist')[copyIndex()]]"
+          },
+          "dataCollectionRuleId": {
+            "value": "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-VM-{0}', parameters('Seed')))]"
+          },
+          "Seed": {
+            "value": "[parameters('Seed')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.26.54.24096",
+              "templateHash": "1397116905275369187"
+            }
+          },
+          "parameters": {
+            "VMName": {
+              "type": "string"
+            },
+            "dataCollectionRuleId": {
+              "type": "string"
+            },
+            "Seed": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+              "apiVersion": "2022-06-01",
+              "scope": "[format('Microsoft.HybridCompute/machines/{0}', parameters('VMName'))]",
+              "name": "[format('DCRA-VM-{0}', parameters('Seed'))]",
+              "properties": {
+                "dataCollectionRuleId": "[parameters('dataCollectionRuleId')]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/dataCollectionRules', format('DCR-VM-{0}', parameters('Seed')))]"
+      ]
+    },
+    {
+      "copy": {
         "name": "DCR_AKS_Association",
         "count": "[length(parameters('AKSlist'))]"
       },
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "[format('DCR-{0}-{1}', parameters('AKSlist')[copyIndex()], parameters('Seed'))]",
+      "name": "[format('DCRA-{0}-{1}', parameters('AKSlist')[copyIndex()], parameters('Seed'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"

@@ -62,16 +62,15 @@ az deployment group create `
           VMlist=$ArcVMlist `
           AKSlist=$AKSlist
 
+# Configure data collection in Container insights using ConfigMap
+kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/container-azm-ms-agentconfig.yaml'
+kubectl describe pod ama-logs-rs-7d6765c4d-b7d8f -n kube-system
+
 # connect to the AKS cluster
 az aks get-credentials --resource-group "$Seed-Demo" --name "AKS-$Seed" --overwrite-existing
 # create a namespace for the sample application
 kubectl create namespace 'pets-store'
 # Deploy a sample AKS application
 kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/aks-store-quickstart.yaml' -n 'pets-store'
-#  set up and use Azure Monitor - Containers to monitor the health and performance of your workloads deployed to Kubernetes
-helm repo add microsoft https://microsoft.github.io/charts/repo
-helm install --generate-name --set amalogs.secret.wsid=$LawId,amalogs.secret.key=$LawKey,amalogs.env.clusterName=$AksName,meta.helm.sh/release-name=azuremonitor-containers-1712520596  microsoft/azuremonitor-containers
 
-# Configure data collection in Container insights using ConfigMap
-kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/container-azm-ms-agentconfig.yaml'
-kubectl describe pod ama-logs-rs-7d786c7f7c-rms8h -n kube-system
+
