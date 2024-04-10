@@ -38,7 +38,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-11-02-preview' = {
     type: 'SystemAssigned'
   }
   sku: {
-    name: 'Basic'
+    name: 'Base'
     tier: 'Free'
   }
   properties: {
