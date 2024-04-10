@@ -1,0 +1,78 @@
+az login 
+az account set --subscription 89c1a3d1-e53c-4cf9-871a-9343d0221bb4 # MCAPS tenant
+
+# Seed is a random string used to create unique names for the resources
+$Seed=(-join ((48..57) + (97..122) | Get-Random -Count 5 | % {[char]$_}))
+
+# MyIP is the public IP address of the machine you are using to deploy the resources
+$MyIP="81.56.1.134"
+
+# location for the resources
+$location='northeurope'
+
+# password for the administrator account
+$adminPassword=(-join ((48..59) + (63..91) + (99..123) | Get-Random -count 15 | % {[char]$_})) 
+
+# MyObecjectId is the Object Id of the user that will have access to the administrator password of the VMs in the key vault
+$MyObecjectId='23015930-8d86-453a-9fb0-c81dd1df4902' # MCAPS - L'object Id dell'utente gderossi_microsoft.com#EXT#@MngEnvMCAP462233.onmicrosoft.com 
+
+# Create the resource group
+az group create --name "$Seed-Demo" --location $location
+
+# Create the SSH key for the AKS Cluster
+$SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
+
+# Create the hub&spoke infrastructure
+az deployment sub create `
+     --name "CoreDeploy-$Seed" `
+     --location $location `
+     --template-file '.\Main.bicep' `
+     --parameters `
+          'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' `
+          location=$location `
+          Seed=$Seed `
+          MyObjectId=$MyObecjectId `
+          MyIPaddress=$MyIP `
+          adminPassword=$adminPassword `
+          SSHPublickey=$SSHPublickey `
+          WinNum=0 
+
+# Retrieve the Log Analytics Workspace name and the Arc enabled VM name from the deployment outputs
+$LAWname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value
+# get the log analytics workspace shared key
+$LawKey=az monitor log-analytics workspace get-shared-keys --name "LA-$Seed" --resource-group "$Seed-Demo" --query primarySharedKey -o tsv 
+# get log analytics workspace id
+$LawId=az monitor log-analytics workspace show --name "LA-$Seed" --resource-group "$Seed-Demo" --query customerId -o tsv
+$ArcWinVMname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv
+#$AKSName=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.aksName.value -o tsv
+# get AKS cluster name
+$AksName=az aks show --resource-group "$Seed-Demo" --name "AKS-$Seed" --query name -o tsv
+$ArcVMlist='[\"'+$ArcWinVMname+'\"]'
+$AKSlist='[\"'+$AksName+'\"]'
+
+# Create 2 Data Collection Rules to send the Performance counter from Arc anabled VMs and AKS to the LA Workspace
+az deployment group create `
+     --name "AgentsDeploy-$Seed" `
+     --resource-group "$Seed-Demo" `
+     --template-file '.\src\DCR.bicep' `
+     --parameters `
+          WorkspaceName=$LAWname `
+          location=$location `
+          Seed=$Seed `
+          VMlist=$ArcVMlist `
+          AKSlist=$AKSlist
+
+# connect to the AKS cluster
+az aks get-credentials --resource-group "$Seed-Demo" --name "AKS-$Seed" --overwrite-existing
+# create a namespace for the sample application
+kubectl create namespace 'pets-store'
+# Deploy a sample AKS application
+kubectl apply -f './Files/aks-store-quickstart.yaml' -n 'pets-store'
+
+#  set up and use Azure Monitor - Containers to monitor the health and performance of your workloads deployed to Kubernetes
+helm repo add microsoft https://microsoft.github.io/charts/repo
+helm install --generate-name --set amalogs.secret.wsid=$LawId,amalogs.secret.key=$LawKey,amalogs.env.clusterName=$AksName,meta.helm.sh/release-name=azuremonitor-containers-1712520596  microsoft/azuremonitor-containers
+
+# Configure data collection in Container insights using ConfigMap
+kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/container-azm-ms-agentconfig.yaml'
+kubectl describe pod ama-logs-rs-7d786c7f7c-rms8h -n kube-system

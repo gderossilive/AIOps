@@ -37,6 +37,10 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-11-02-preview' = {
   identity: {
     type: 'SystemAssigned'
   }
+  sku: {
+    name: 'Basic'
+    tier: 'Free'
+  }
   properties: {
     dnsPrefix: dnsPrefix
     agentPoolProfiles: [

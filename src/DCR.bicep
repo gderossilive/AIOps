@@ -77,15 +77,12 @@ resource DCR_ContainerInsights 'Microsoft.Insights/dataCollectionRules@2022-06-0
       extensions: [
         {
           streams: [
-            'Microsoft-ContainerLogV2'
-            'Microsoft-KubeEvents'
-            'Microsoft-KubePodInventory'
-            'Microsoft-ContainerLog'
+            'Microsoft-ContainerInsights-Group-Default'
           ]
           extensionName: 'ContainerInsights'
           extensionSettings: {
             dataCollectionSettings: {
-              interval: '10m'
+              interval: '1m'
               namespaceFilteringMode: 'Off'
               enableContainerLogV2: true
             }
@@ -114,7 +111,7 @@ resource DCR_ContainerInsights 'Microsoft.Insights/dataCollectionRules@2022-06-0
     ]
   }
 }
-
+/*
 module DCR_VM_Association 'DCR-VM-Association.bicep' = [for VMName in VMlist:{
   name: 'DCR-${VMName}-${Seed}'
   params: {
@@ -123,7 +120,7 @@ module DCR_VM_Association 'DCR-VM-Association.bicep' = [for VMName in VMlist:{
     dataCollectionRuleId: DCR_VMInsights.id
     Seed: Seed
   }
-}]
+}]*/
 
 module DCR_AKS_Association 'DCR-AKS-Association.bicep' = [for AKSName in AKSlist:{
   name: 'DCR-${AKSName}-${Seed}'
@@ -131,6 +128,5 @@ module DCR_AKS_Association 'DCR-AKS-Association.bicep' = [for AKSName in AKSlist
     AKSname: AKSName
 //    dataCollectionEndpointId: DCR_VMInsights.id
     dataCollectionRuleId: DCR_ContainerInsights.id
-    Seed: Seed
   }
 }]

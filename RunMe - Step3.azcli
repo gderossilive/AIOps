@@ -23,8 +23,14 @@ az deployment group create `
           VMlist=$ArcVMlist `
           AKSlist=$AKSlist
 
+$Seed='gl635'
 # connect to the AKS cluster
 az aks get-credentials --resource-group "$Seed-Demo" --name "AKS-$Seed" --overwrite-existing
+# create a namespace for the sample application
+kubectl create namespace 'pets-store'
+# Deploy a sample AKS application
+kubectl apply -f './Files/aks-store-quickstart.yaml' -n 'pets-store'
+kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/aks-store-quickstart.yaml' -n 'pets-store'
 # Configure data collection in Container insights using ConfigMap
 kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/container-azm-ms-agentconfig.yaml'
 # kubectl describe pod ama-logs-rs-6494f748b4-h2rtb -n kube-system
