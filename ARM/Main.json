@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "13572375082346361386"
+      "templateHash": "5399478434700257109"
     }
   },
   "parameters": {
@@ -192,7 +192,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "6754040530365884491"
+              "templateHash": "8501510806444322434"
             }
           },
           "parameters": {
@@ -346,6 +346,34 @@
               "properties": {
                 "publicIPAllocationMethod": "Static"
               }
+            },
+            {
+              "type": "Microsoft.Network/bastionHosts",
+              "apiVersion": "2022-01-01",
+              "name": "[parameters('BastionHostName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "Basic"
+              },
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "IpConf",
+                    "properties": {
+                      "subnet": {
+                        "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('HubVnetName')), '2021-02-01').subnets[0].id]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('BastionPublicIpName'))]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('HubVnetName'))]",
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('BastionPublicIpName'))]"
+              ]
             },
             {
               "type": "Microsoft.Resources/deployments",

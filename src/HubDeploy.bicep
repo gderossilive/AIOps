@@ -124,7 +124,7 @@ resource publicIpAddressForBastion 'Microsoft.Network/publicIpAddresses@2020-08-
     publicIPAllocationMethod: 'Static'
   }
 }
-/*
+
 resource bastionHost 'Microsoft.Network/bastionHosts@2022-01-01' =  {
   name: BastionHostName
   dependsOn: [
@@ -149,7 +149,7 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2022-01-01' =  {
       }
     ]
   }
-}*/
+}
 
 output HubVnetName string = HubVnetName
 output PEsubnetName string = PEsubnetName
