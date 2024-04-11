@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "12606180793358549593"
+      "templateHash": "5729500517031767063"
     }
   },
   "parameters": {
@@ -68,6 +68,10 @@
       "type": "Microsoft.CognitiveServices/accounts/deployments",
       "apiVersion": "2023-10-01-preview",
       "name": "[format('{0}/{1}', format('OpenAI-{0}', uniqueString(resourceGroup().id)), parameters('OpenAIdeploymentName'))]",
+      "sku": {
+        "name": "Standerd",
+        "capacity": 60
+      },
       "properties": {
         "model": {
           "format": "OpenAI",
@@ -110,6 +114,10 @@
     "OpenAIdeploymentName": {
       "type": "string",
       "value": "[parameters('OpenAIdeploymentName')]"
+    },
+    "OpenAIName": {
+      "type": "string",
+      "value": "[parameters('OpenAIName')]"
     }
   }
 }
