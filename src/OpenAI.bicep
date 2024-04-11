@@ -35,6 +35,10 @@ resource OpenAIservice 'Microsoft.CognitiveServices/accounts@2023-10-01-preview'
 resource OpenAIdeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-10-01-preview' = {
   name: OpenAIdeploymentName
   parent: OpenAIservice
+  sku: {
+    name: 'Standerd'
+    capacity: 60
+  }
   properties: {
     model: {
       format: 'OpenAI'
@@ -69,3 +73,4 @@ resource OpenAIsec 'Microsoft.KeyVault/vaults/secrets@2021-04-01-preview' =  {
 
 output OpenAIserviceName string = OpenAIservice.name
 output OpenAIdeploymentName string = OpenAIdeployment.name
+output OpenAIName string = OpenAIName
