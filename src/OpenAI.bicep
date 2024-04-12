@@ -37,7 +37,7 @@ resource OpenAIdeployment 'Microsoft.CognitiveServices/accounts/deployments@2023
   parent: OpenAIservice
   sku: {
     name: 'Standard'
-    capacity: 60
+    capacity: 50
   }
   properties: {
     model: {

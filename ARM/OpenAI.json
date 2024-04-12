@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "15859203187936837182"
+      "templateHash": "8092226889201601149"
     }
   },
   "parameters": {
@@ -70,7 +70,7 @@
       "name": "[format('{0}/{1}', format('OpenAI-{0}', uniqueString(resourceGroup().id)), parameters('OpenAIdeploymentName'))]",
       "sku": {
         "name": "Standard",
-        "capacity": 60
+        "capacity": 50
       },
       "properties": {
         "model": {
