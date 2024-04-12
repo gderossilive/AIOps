@@ -3,7 +3,6 @@ targetScope='subscription'
 param location string 
 param Seed string
 param MyObjectId string
-param MyIPaddress string
 @secure()
 param adminPassword string
 
