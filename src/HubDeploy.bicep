@@ -3,7 +3,6 @@ targetScope = 'resourceGroup'
 param location string = resourceGroup().location
 param Seed string
 param MyObjectId string
-param MyIPaddress string
 @secure()
 param adminPassword string
 

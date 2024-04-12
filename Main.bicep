@@ -54,7 +54,6 @@ module HubDeploy 'src/HubDeploy.bicep' = {
     location: location
     Seed: Seed
     MyObjectId: MyObjectId
-    MyIPaddress: MyIPaddress
     adminPassword: adminPassword
     HubVnetName: HubVnetName
     BastionSubnetAddressPrefix: BastionSubnetAddressPrefix

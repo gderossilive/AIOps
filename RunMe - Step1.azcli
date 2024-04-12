@@ -1,7 +1,7 @@
 # import environment variables from .env file
 get-content .env | foreach {
     $name, $value = $_.split('=')
-    set-content env:\$name $value
+    set-content ENV:\$name $value
 }
 
 az login --use-device-code
@@ -14,7 +14,7 @@ $Seed=(-join ((48..57) + (97..122) | Get-Random -Count 5 | % {[char]$_}))
 $adminPassword=(-join ((48..59) + (63..91) + (99..123) | Get-Random -count 15 | % {[char]$_})) 
 
 # Create the resource group
-az group create --name "$Seed-Demo" --location $ENV:location
+az group create --name "$Seed-Demo" --location "$ENV:location"
 
 # Create the SSH key for the AKS Cluster
 $SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
@@ -22,14 +22,13 @@ $SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Dem
 # Create the hub&spoke infrastructure
 az deployment sub create `
      --name "CoreDeploy-$Seed" `
-     --location $ENV:location `
+     --location "$ENV:location" `
      --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/Main.json' `
      --parameters `
           'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' `
-          location=$ENV:location `
+          location="$ENV:location" `
           Seed=$Seed `
-          MyObjectId=$ENV:MyObecjectId `
-          MyIPaddress=$ENV:MyIP `
+          MyObjectId="$ENV:MyObecjectId" `
           adminPassword=$adminPassword `
           SSHPublickey=$SSHPublickey `
           WinNum=1 
