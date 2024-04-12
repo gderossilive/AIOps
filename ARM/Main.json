@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.26.54.24096",
-      "templateHash": "5399478434700257109"
+      "templateHash": "5443128800558802294"
     }
   },
   "parameters": {
@@ -16,9 +16,6 @@
       "type": "string"
     },
     "MyObjectId": {
-      "type": "string"
-    },
-    "MyIPaddress": {
       "type": "string"
     },
     "adminPassword": {
@@ -142,9 +139,6 @@
           "MyObjectId": {
             "value": "[parameters('MyObjectId')]"
           },
-          "MyIPaddress": {
-            "value": "[parameters('MyIPaddress')]"
-          },
           "adminPassword": {
             "value": "[parameters('adminPassword')]"
           },
@@ -192,7 +186,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.26.54.24096",
-              "templateHash": "8501510806444322434"
+              "templateHash": "1368814456544335085"
             }
           },
           "parameters": {
@@ -204,9 +198,6 @@
               "type": "string"
             },
             "MyObjectId": {
-              "type": "string"
-            },
-            "MyIPaddress": {
               "type": "string"
             },
             "adminPassword": {
