@@ -18,7 +18,7 @@ az deployment group create `
      --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/DCR.json' `
      --parameters `
           WorkspaceName=$LAWname `
-          location=$location `
+          location=$ENV:location `
           Seed=$Seed `
           VMlist=$ArcVMlist `
           AKSlist=$AKSlist
@@ -37,7 +37,7 @@ kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/File
 # setup the AMA extension on the Arc enabled VM
 az connectedmachine extension create `
 	--machine-name $ArcWinVMname `
-	--location $location `
+	--location $ENV:location `
 	--name 'AzureMonitorWindowsAgent' `
 	--resource-group "$Seed-Demo" `
 	--type "AzureMonitorWindowsAgent" `
@@ -47,10 +47,13 @@ az connectedmachine extension create `
 # setup the dependency agent on the Arc enabled VM
 az connectedmachine extension create `
      --machine-name $ArcWinVMname `
-     --location $location `
+     --location $ENV:location `
      --name 'DependencyAgentWindows' `
      --resource-group "$Seed-Demo" `
      --type "DependencyAgentWindows" `
      --publisher "Microsoft.Azure.Monitoring.DependencyAgent" `
      --settings '{\"enableAMA\": \"true\"}' `
      --enable-auto-upgrade true
+
+# assess the patches on the Arc enabled VM
+az connectedmachine assess-patches -g "$Seed-Demo" -n "DC-1"

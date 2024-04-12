@@ -2,13 +2,13 @@ az login
 az account set --subscription 89c1a3d1-e53c-4cf9-871a-9343d0221bb4 # MCAPS tenant
 
 # Seed is a random string used to create unique names for the resources
-$Seed=(-join ((48..57) + (97..122) | Get-Random -Count 5 | % {[char]$_}))
+$Seed=(New-Guid).ToString().Substring(0,5)
 
 # MyIP is the public IP address of the machine you are using to deploy the resources
 $MyIP="81.56.1.134"
 
 # location for the resources
-$location='northeurope'
+$ENV:location='northeurope'
 
 # password for the administrator account
 $adminPassword=(-join ((48..59) + (63..91) + (99..123) | Get-Random -count 15 | % {[char]$_})) 
@@ -17,7 +17,7 @@ $adminPassword=(-join ((48..59) + (63..91) + (99..123) | Get-Random -count 15 | 
 $MyObecjectId='23015930-8d86-453a-9fb0-c81dd1df4902' # MCAPS - L'object Id dell'utente gderossi_microsoft.com#EXT#@MngEnvMCAP462233.onmicrosoft.com 
 
 # Create the resource group
-az group create --name "$Seed-Demo" --location $location
+az group create --name "$Seed-Demo" --location $ENV:location
 
 # Create the SSH key for the AKS Cluster
 $SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
@@ -25,11 +25,11 @@ $SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Dem
 # Deploy the Demo environment infrastructure
 az deployment sub create `
      --name "CoreDeploy-$Seed" `
-     --location $location `
+     --location $ENV:location `
      --template-file '.\Main.bicep' `
      --parameters `
           'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' `
-          location=$location `
+          location=$ENV:location `
           Seed=$Seed `
           MyObjectId=$MyObecjectId `
           MyIPaddress=$MyIP `
@@ -57,7 +57,7 @@ az deployment group create `
      --template-file '.\src\DCR.bicep' `
      --parameters `
           WorkspaceName=$LAWname `
-          location=$location `
+          location=$ENV:location `
           Seed=$Seed `
           VMlist=$ArcVMlist `
           AKSlist=$AKSlist
