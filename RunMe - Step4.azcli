@@ -20,20 +20,22 @@ az deployment group create `
      --resource-group "$Seed-Demo" `
      --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/OpenAI.json' `
      --parameters `
-          location='westeurope' `
+          location='swedencentral' `
           SPsecret=$CopSp_pwd `
           KVname=$KVname `
           Seed=$Seed 
 
-# ----------------------------------
-#$openAIserviceName= az cognitiveservices account show --name "OpenAI-5n2zmjqplhsae" --resource-group  "$Seed-Demo" --query properties.endpoint -o tsv
+
+$openAIName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIName.value -o tsv
+
+$openAICustomDomainName= az cognitiveservices account show --name $openAIName --resource-group  "$Seed-Demo" --query properties.endpoint -o tsv
 #$openAIserviceName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv
 #$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
-#$openAIdeploymentName=az cognitiveservices account deployment list --name "OpenAI-5n2zmjqplhsae" --resource-group  "$Seed-Demo" --query [].name -o tsv
-# ----------------------------------
+$openAIdeploymentName=az cognitiveservices account deployment list --name $openAIName --resource-group  "$Seed-Demo" --query [].name -o tsv
 
-$openAICustomDomainName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIName.value -o tsv
-$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
+
+#$openAICustomDomainName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIName.value -o tsv
+#$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
 
 
 

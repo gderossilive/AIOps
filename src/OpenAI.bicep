@@ -43,7 +43,7 @@ resource OpenAIdeployment 'Microsoft.CognitiveServices/accounts/deployments@2023
     model: {
       format: 'OpenAI'
       name: 'gpt-35-turbo'
-      version: '0301'
+      version: '0613'
     }
     versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
     currentCapacity: 50
