@@ -26,12 +26,14 @@ az deployment group create `
           Seed=$Seed 
 
 
-$openAIName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIName.value -o tsv
+$openAIServiceName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv
+$openAICustomDomainName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIName.value -o tsv
+$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
 
-$openAICustomDomainName= az cognitiveservices account show --name $openAIName --resource-group  "$Seed-Demo" --query properties.endpoint -o tsv
+#$openAICustomDomainName= az cognitiveservices account show --name $openAIServiceName --resource-group  "$Seed-Demo" --query properties.endpoint -o tsv
 #$openAIserviceName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv
 #$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
-$openAIdeploymentName=az cognitiveservices account deployment list --name $openAIName --resource-group  "$Seed-Demo" --query [].name -o tsv
+#$openAIdeploymentName=az cognitiveservices account deployment list --name $openAIName --resource-group  "$Seed-Demo" --query [].name -o tsv
 
 
 #$openAICustomDomainName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIName.value -o tsv
