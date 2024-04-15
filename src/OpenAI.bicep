@@ -1,14 +1,20 @@
 @description('That name is the name of our application. It has to be unique.Type a name followed by your resource group name. (<name>-<resourceGroupName>)')
-param OpenAIName string = 'OAISrv-${Seed}-${substring(uniqueString(resourceGroup().id, newGuid()),0,5)}'
-param OpenAIdeploymentName string = 'OAIDeploy-${Seed}-${substring(uniqueString(resourceGroup().id, newGuid()),0,5)}'
+param OpenAIName string = 'OAISrv-${Seed}-${substring(uniqueString(resourceGroup().id, newGuid()),0,3)}'
+param OpenAIdeploymentName string = 'OAIDeploy-${Seed}-${substring(uniqueString(resourceGroup().id, newGuid()),0,3)}'
 
 @description('Location for all resources.')
-param location string = resourceGroup().location
+param location string = 'swedencentral'
+
+param ServiceName string = 'OpenAI'
 
 @allowed([
   'S0'
 ])
 param sku string = 'S0'
+param format string = 'OpenAI'
+param ModelName string = 'gpt-35-turbo'
+param version string = '0613'
+
 param Seed string
 param KVname string
 @secure()
@@ -41,12 +47,11 @@ resource OpenAIdeployment 'Microsoft.CognitiveServices/accounts/deployments@2023
   }
   properties: {
     model: {
-      format: 'OpenAI'
-      name: 'gpt-35-turbo'
-      version: '0613'
+      format: format
+      name: ModelName
+      version: version
     }
     versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
-    currentCapacity: 50
     raiPolicyName: 'Microsoft.Default'
   }
 }
