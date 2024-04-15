@@ -46,7 +46,7 @@ resource OpenAIdeployment 'Microsoft.CognitiveServices/accounts/deployments@2023
       version: '0301'
     }
     versionUpgradeOption: 'OnceNewDefaultVersionAvailable'
-    currentCapacity: 60
+    currentCapacity: 50
     raiPolicyName: 'Microsoft.Default'
   }
 }

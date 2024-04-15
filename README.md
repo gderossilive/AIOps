@@ -12,6 +12,7 @@ I prerequisiti per poter installare questa demo sono:
 - Sottoscrizione Azure
 - Licenze copilot studio
 - Licenza Office 365
+- kubectl installato
 
 # Setup della demo
 

@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.26.54.24096",
-      "templateHash": "8092226889201601149"
+      "version": "0.26.170.59819",
+      "templateHash": "5985583899534321183"
     }
   },
   "parameters": {
@@ -79,7 +79,7 @@
           "version": "0301"
         },
         "versionUpgradeOption": "OnceNewDefaultVersionAvailable",
-        "currentCapacity": 60,
+        "currentCapacity": 50,
         "raiPolicyName": "Microsoft.Default"
       },
       "dependsOn": [
