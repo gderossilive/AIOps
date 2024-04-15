@@ -5,7 +5,8 @@ param OpenAIdeploymentName string = 'OAIDeploy-${Seed}-${substring(uniqueString(
 @description('Location for all resources.')
 param location string = 'swedencentral'
 
-param ServiceName string = 'OpenAI'
+param ServiceName string = 'Standard'
+param Capacity int = 50
 
 @allowed([
   'S0'
@@ -42,8 +43,8 @@ resource OpenAIdeployment 'Microsoft.CognitiveServices/accounts/deployments@2023
   name: OpenAIdeploymentName
   parent: OpenAIservice
   sku: {
-    name: 'Standard'
-    capacity: 50
+    name: ServiceName
+    capacity: Capacity
   }
   properties: {
     model: {
