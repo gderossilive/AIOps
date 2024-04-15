@@ -96,33 +96,12 @@ L'obiettivo di questos cript è automatizzare il più possibile l'onboarding di 
 ```
 ## Import del Copilot all'interno di Copilot Studio via PowerAutomate
 
-### Creazione delle Connections
-Per poter creare le Connections necessarie (Key Vault e Azure Monitor) è necessario: 
-
-- aprire Powerautomate (https://make.powerautomate.com/)
-- Creare la Connections per Azure Key Vault
-    - selezionare Connections
-    - Cliccare su "New Connection"
-    - In Search scrivere Key Vault
-    - Selezionare Azure Key Vault
-    - Come 'Authentication type' scegliere 'Service principal authentication'
-    - Compilare i campi (Client ID, Client Secret e Tenant ID) con gli output dello script 'RunMe . Phase4'
-    - Finita la creazione, per comodità, rinominare la connection appena creata con il nome dell'Azure Key Vault
-- Creare la Connections per Azure Monitor Logs
-    - selezionare Connections
-    - Cliccare su "New Connection"
-    - In Search scrivere Monitor Logs
-    - Selezionare Azure Monitor Logs
-    - Come 'Authentication type' scegliere 'Service principal authentication'
-    - Compilare i campi (Client ID, Client Secret e Tenant ID) con gli output dello script 'RunMe - Phase4'
-    - Finita la creazione, per comodità, rinominare la connection appena creata con il nome dell'Azure Key Vault
-
 ### Import della Solution
 Per poter importare la Solution è necessario:
 
 - Selezionare Solutions
 - Cliccare su 'Import solution'
-- Cliccare su Browse e scegliere il file zip contenente la Solution
+- Cliccare su Browse e scegliere il file zip contenente la Solution 'Files/OpsCopBot_1_0_0_2.zip'
 - Cliccare Next
 - Cliccare Next
 - Per ogni Connection scegliere quella corrispondete precedentemente creata

@@ -25,15 +25,15 @@ az deployment group create `
           KVname=$KVname `
           Seed=$Seed 
 
-$openAIserviceName= az cognitiveservices account show --name "OpenAI-5n2zmjqplhsae" --resource-group  "$Seed-Demo" --query properties.endpoint -o tsv
-#$openAIserviceName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv
-#$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
-$openAIdeploymentName=az cognitiveservices account deployment list --name "OpenAI-5n2zmjqplhsae" --resource-group  "$Seed-Demo" --query [].name -o tsv
+#$openAIserviceName= az cognitiveservices account show --name "OpenAI-5n2zmjqplhsae" --resource-group  "$Seed-Demo" --query properties.endpoint -o tsv
+$openAIserviceName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv
+$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
+#$openAIdeploymentName=az cognitiveservices account deployment list --name "OpenAI-5n2zmjqplhsae" --resource-group  "$Seed-Demo" --query [].name -o tsv
 
-Write-Host "OpenAI ServicePrincipal Id: $CopSp_id"
-Write-Host "OpenAI ServicePrincipal Secret: $CopSp_pwd"
-Write-Host "Tenant Id: $tenantID"
-Write-Host "Key Vault Name: $KVname"
-Write-Host "Log Analytics Workspace Name: $LAWname"
-Write-Host "OpenAI Service Name: $openAIserviceName"
-Write-Host "OpenAI Deployment Name: $openAIdeploymentName"
+Write-Host "OpenAI ServicePrincipal Id: $CopSp_id ``
+OpenAI ServicePrincipal Secret: $CopSp_pwd ``
+Tenant Id: $tenantID ``
+Key Vault Name: $KVname ``
+Log Analytics Workspace Name: $LAWname ``
+OpenAI Service Name: $openAIserviceName ``
+OpenAI Deployment Name: $openAIdeploymentName"
