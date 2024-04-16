@@ -12,89 +12,72 @@ I prerequisiti per poter installare questa demo sono:
 - Sottoscrizione Azure
 - Licenze copilot studio
 - Licenza Office 365
-- kubectl installato
+- kubectl operativo
+- Quota disponibile per servizi Azure OpenAI nella propria sottoscrizione
 
 # Setup della demo
 
-Il setup di questo copilot richiede una serie di passaggi:
-- Setup delle risorse utili per la demo (AKS, VM, Log Analytics, etc.)
-- Onboarding Arc della VM
-- Installazione della Data Collection Rule (DCR) e le relative extensions sull'Arc-Enabled VM
-- Import del Copilot all'interno di Copilot Studio via PowerAutomate
+Il setup di questo copilot richiede una serie di passi:
+- Setup delle risorse infrastrutturali necessarie per la demo (AKS, VM, Log Analytics, etc.)
+- Onboarding della VM su Azure Arc
+- Onboarding della VM e del Cluster AKS in Azure Monitor
+- Setup delle componenti Azure OpenAI
+- Import e configurazione del Copilot e dei relativi flow in PowerAutomate
 - Pubblicazione del Copilot all'interno di Microsoft Teams
 
 ## 1- Setup delle risorse utili per la demo
-Di seguito i passi principali eseguiti da questo script Azure CLI:
+Obiettivo di questo script è quello di fare il setup delle seguenti componenti:
+- un Resource Group che conterrà tutte le risorse Azure utilizzate dalla demo
+- una coppia di chiavi SSH per l'accesso sicuro ai nodi del cluster AKS
+- una Virtual Network sulla quale saranno attestate la VM ed il cluster AKS
+- un Bastion per l'accesso sicuro ala VM
+- un Key Vault che custodirà in modo sicuro la password di admin per la VM, l'API-Key per l'accesso ad Azure OpenAI ed il secret dei service principal utilizzato dal Copilot per accedere alle risorse Azure
+- un Log Analytics Workspace per la raccolta delle metriche e dei log delle risorse
+- un Azure OpenAI service
 
+Di seguito i passi principali da eseguire:
+- Rinominare il file .env.example in .env e personalizzarlo con i propri valori per
+    - MyObecjectId ovvero l'Entra ID Object ID dell'utente che eseguirà gli script in Azure
+    - MySubscriptionId ovvero l'ID della sottoscrizione dove verranno ospitate le componenti Azure delle demo
+    - location la regione di Azure che ospiterà le componenti delle demo
+- Eseguire lo script "RunMe - Step1.azcli"
+
+Le operazioni compiute dallo script sono:
+- Carica le variabili memorizzate all'interno del file .env
 - Effettua l'accesso all'account Azure eseguendo il comando az login
 - Attrverso il comando az account set sceglie la sottoscrizione dove installare la demo
 - Genera una stringa casuale di 5 caratteri alfanumerici e la assegna alla variabile $Seed. Questa variabile viene utilizzata per rendere unici i nomi delle risorse create in Azure 
 - Genera una password casuale di 15 caratteri utilizzando una combinazione di numeri e caratteri speciali e la assegna alla variabile $adminPassword. Verrà utilizzata come password dell'amministratore delle VM
-- Assegna alla variabile $MyIP l'indirizzo IP pubblico dal quale si potrà accedere al Key Vault per leggere la password di administrator assegnata alla variabile $adminPassword 
-- Imposta la variabile $ENV:location con il valore "northeurope" che sarà la regione di Azure che ospiterà le risorse della demo
-- Assegna all'oggetto $MyObecjectId l'object id dell'utente che avrà il diritto di accedere alla password di amministratore protetta nel key vault
 - Crea un nuovo resource group utilizzando il comando az group create, specificando il nome del gruppo come "$Seed-Demo" e la posizione come $ENV:location.
 - Genera una chiave SSH utilizzando il comando az sshkey create e la assegna alla variabile $SSHPublickey.
 - Esegue il comando az deployment sub create per creare l'infrastruttura di rete, il key vault, il cluster AKS, la VM che verrà poi abilitata con Azure Arc, il Log Analytics Workspace per la raccolta dei dati di monitoring. Vengono specificati i parametri necessari da passare all'ARM template per la sua esecuzione
 
-### Esecuzione dello script RunMe - Phase1.azcli
-- Effettuare il login su Azure
-```azcli
-    az login
-```
-- Posizionarsi all'interno della sottoscrizione nella quale si vuole creare lo scenario
-```azcli
-    az account set --subscription <ResourceId della tua sottoscrizione>
-```
-- Instanziare le 5 variabili sotto
-```azcli
-    $Seed=(-join ((48..57) + (97..122) | Get-Random -Count 3 | % {[char]$_}))
-    $MyIP=<Inserisci il tuo IP>
-    $ENV:location=<Inserisci la region di riferimento>
-    $adminPassword=(-join ((48..59) + (63..91) + (99..123) | Get-Random -count 15 | % {[char]$_})) 
-    $MyObecjectId=<Inserisci l'objectId del tuo utente> 
-```
-- Procedere con la creazione del Resource Group e delle chiavi SSH utili per la creazione dei nodi dell'AKS cluster
-```azcli
-    az group create --name "$Seed-Demo" --location $ENV:location
-    $SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
-```
-- Posizionarsi nella directory dove sono presenti i file Bicep
-- Lanciare il comando
-```azcli
-    az deployment sub create `
-        --name "CoreDeploy-$Seed" `
-        --location $ENV:location `
-        --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/Main.json' `
-        --parameters `
-            'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' `
-            location=$ENV:location `
-            Seed=$Seed `
-            MyObjectId=$MyObecjectId `
-            MyIPaddress=$MyIP `
-            adminPassword=$adminPassword `
-            SSHPublickey=$SSHPublickey `
-            WinNum=1 
-```
+## 2- Onboarding Arc della VM
+L'obiettivo di questo script è automatizzare il più possibile l'onboarding di una VM su Azure Arc. Inizia perciò con la creazione di un service principal, gli assegna il ruolo "Azure Connected Machine Onboarding" e finisce fornendo le istruzioni per completare l'onboarding
 
-## Onboarding Arc della VM
-L'obiettivo di questos cript è automatizzare il più possibile l'onboarding di una VM su Azure Arc. Inizia perciò con la creazione di un service principal, gli assegna il ruolo "Azure Connected Machine Onboarding" e finisce fornendo le istruzioni per completare l'onboarding
+Di seguito i passi principali da eseguire:
+- Eseguire lo script "RunMe - Step2.azcli"
+- Copiare il comando dato in output dallo script
+- collegarsi alla VM DC-1 creata al passo precedente
+    - Selezionare la VM DC-1
+    - Selezionare Bastion
+    - Alla voce 'Authentication Type' scegliere l'opzione 'Passworkd from Azure Key Vault'
+    - Come username utilizzare 'gdradmin'
+    - In 'Azure Key Vault' scegliere il Key Vault appena creato
+    - In Azure Key Vault Secret, scegliere 'adminPassword'
+- Eseguire il comando dato in output dallo script all'interno di una Powershell
+- Verificare all'interno del portale di Azure che l'onboarding della VM in Arc sia avvenuto correttamente
 
-### Esecuzione dello script RunMe - Phase1.azcli
-```azcli
-    # Retrieve TenantID, SubscriptionID and SubscriptionName
-    $tenantID=$(az account show --query tenantId -o tsv)
-    $subscriptionID=$(az account show --query id -o tsv)
-    $subscriptionName=$(az account show --query name -o tsv)
+## 3- Onboarding della VM e del Cluster AKS in Azure Monitor
+L'obiettivo di questo script è:
+- Attivare VM Insights sull'Arc enabled VM
+- Attivare Container Insights sul'Azure Kubernetes Service cluster
 
-    # Create a service principal for the Arc resource group using a preferred name and role
-    $ArcSp_pwd=az ad sp create-for-rbac --name "ArcDeploySP-$Seed" `
-                            --role "Azure Connected Machine Onboarding" `
-                            --scopes "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo" `
-                            --query "password" -o tsv
-    $ArcSp_id=az ad sp list --filter "displayname eq 'ArcDeploySP-$Seed'" --query "[0].appId" -o tsv
-    az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azure Arc Onboarding" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
-```
+Per far questo basta eseguire lo script "RunMe - Step3.azcli"
+
+Le operazioni compiute dallo script sono:
+
+
 ## Import del Copilot all'interno di Copilot Studio via PowerAutomate
 
 ### Import della Solution
