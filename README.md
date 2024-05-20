@@ -13,7 +13,7 @@ I prerequisiti per poter installare questa demo sono:
 - Licenze copilot studio
 - Licenza Office 365
 - Un client con AzCLI e Kubectl installati ed aggiornati (si consiglia di utilizzare il codespace associato a questo repository)
-- Quota disponibile per servizi Azure OpenAI nella propria sottoscrizione
+- Quota disponibile per servizi Azure OpenAI per la propria sottoscrizione
 
 # Setup della demo
 
@@ -25,7 +25,7 @@ Il setup di questo copilot richiede una serie di passi:
 - Import e configurazione del Copilot e dei relativi flow in PowerAutomate
 - Pubblicazione del Copilot all'interno di Microsoft Teams
 
-## 1- Setup delle risorse utili per la demo
+## 1 - Setup delle risorse utili per la demo
 Obiettivo di questo script è quello di fare il setup delle seguenti componenti:
 - un Resource Group che conterrà tutte le risorse Azure utilizzate dalla demo
 - una coppia di chiavi SSH per l'accesso sicuro ai nodi del cluster AKS
@@ -52,7 +52,7 @@ Le operazioni compiute dallo script sono:
 - Genera una chiave SSH utilizzando il comando az sshkey create e la assegna alla variabile $SSHPublickey.
 - Esegue il comando az deployment sub create per creare l'infrastruttura di rete, il key vault, il cluster AKS, la VM che verrà poi abilitata con Azure Arc, il Log Analytics Workspace per la raccolta dei dati di monitoring. Vengono specificati i parametri necessari da passare all'ARM template per la sua esecuzione
 
-## 2- Onboarding Arc della VM
+## 2 - Onboarding Arc della VM
 L'obiettivo di questo script è automatizzare il più possibile l'onboarding di una VM su Azure Arc. Inizia perciò con la creazione di un service principal, gli assegna il ruolo "Azure Connected Machine Onboarding" e finisce fornendo le istruzioni per completare l'onboarding
 
 Di seguito i passi principali da eseguire:
@@ -68,7 +68,7 @@ Di seguito i passi principali da eseguire:
 - Eseguire il comando dato in output dallo script all'interno di una Powershell
 - Verificare all'interno del portale di Azure che l'onboarding della VM in Arc sia avvenuto correttamente
 
-## 3- Onboarding della VM e del Cluster AKS in Azure Monitor
+## 3 - Onboarding della VM e del Cluster AKS in Azure Monitor
 L'obiettivo di questo script è:
 - Attivare VM Insights sull'Arc enabled VM
 - Attivare Container Insights sul'Azure Kubernetes Service cluster
@@ -81,7 +81,7 @@ Le operazioni compiute dallo script sono:
 - Installare 2 extension all'interno della VM Arc-enabled (AMA+Dependency Agent)
 - Eseguire il patch assessment sulla VM Arc-enabled
 
-# 4- Setup del Modello GPT-3.5-Turbo
+## 4 - Setup del Modello GPT-3.5-Turbo
 L'obiettivo di questo script è:
 - Creare un'utenza applicativa per il Copilot
 - Creare un modello GPT-3.5-Turbo utilizzato in seguito dal Copilot
@@ -153,3 +153,5 @@ Qui troveremo 8 box del tipo 'Set variable value' sulle quali fare le seguenti o
 6) Global.KVName inserire il 'Key Vault Name' recuparato alla fine dello Step4
 7) Global.OAIService inserire il 'OpenAI Service Name' recuparato alla fine dello Step4
 8) Global.OAIDeployment inserire il 'OpenAI Deployment Name' recuparato alla fine dello Step4
+
+### Verifica del corretto funzionamento del Copilot
