@@ -1,15 +1,16 @@
+#!/bin/bash
 # Retrieve the Log Analytics Workspace name and the Arc enabled VM name from the deployment outputs
-$LAWname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value
+LAWname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value)
 # get the log analytics workspace shared key
-$LawKey=az monitor log-analytics workspace get-shared-keys --name "LA-$Seed" --resource-group "$Seed-Demo" --query primarySharedKey -o tsv 
+LawKey=$(az monitor log-analytics workspace get-shared-keys --name "LA-$Seed" --resource-group "$Seed-Demo" --query primarySharedKey -o tsv) 
 # get log analytics workspace id
-$LawId=az monitor log-analytics workspace show --name "LA-$Seed" --resource-group "$Seed-Demo" --query customerId -o tsv
-$ArcWinVMname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv
+LawId=$(az monitor log-analytics workspace show --name "LA-$Seed" --resource-group "$Seed-Demo" --query customerId -o tsv)
+ArcWinVMname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv)
 #$AKSName=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.aksName.value -o tsv
 # get AKS cluster name
-$AksName=az aks show --resource-group "$Seed-Demo" --name "AKS-$Seed" --query name -o tsv
-$ArcVMlist='[\"'+$ArcWinVMname+'\"]'
-$AKSlist='[\"'+$AksName+'\"]'
+AksName=$(az aks show --resource-group "$Seed-Demo" --name "AKS-$Seed" --query name -o tsv)
+ArcVMlist='[\"'+$ArcWinVMname+'\"]'
+AKSlist='[\"'+$AksName+'\"]'
 
 # Create 2 Data Collection Rules to send the Performance counter from Arc anabled VMs and AKS to the LA Workspace
 az deployment group create `

@@ -1,3 +1,4 @@
+#!/bin/bash
 # Retrieve TenantID, SubscriptionID and SubscriptionName
 tenantID=$(az account show --query tenantId -o tsv)
 subscriptionID=$(az account show --query id -o tsv)
