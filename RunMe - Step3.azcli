@@ -50,15 +50,18 @@ az connectedmachine extension create \
 	--enable-auto-upgrade true
 
 # setup the dependency agent on the Arc enabled VM
-az connectedmachine extension create `
-     --machine-name $ArcWinVMname `
-     --location $ENV:location `
-     --name 'DependencyAgentWindows' `
-     --resource-group "$Seed-Demo" `
-     --type "DependencyAgentWindows" `
-     --publisher "Microsoft.Azure.Monitoring.DependencyAgent" `
-     --settings '{\"enableAMA\": \"true\"}' `
+az connectedmachine extension create \
+     --machine-name $ArcWinVMname \
+     --location $location \
+     --name 'DependencyAgentWindows' \
+     --resource-group "$Seed-Demo" \
+     --type "DependencyAgentWindows" \
+     --publisher "Microsoft.Azure.Monitoring.DependencyAgent" \
+     --settings "{\"enableAMA\": \"true\"}" \
      --enable-auto-upgrade true
 
 # assess the patches on the Arc enabled VM
-az connectedmachine assess-patches -g "$Seed-Demo" -n "DC-1"
+az connectedmachine assess-patches -g "$Seed-Demo" -n $ArcWinVMname
+
+# enable periodic patch assessment
+az connectedmachine set-patch-assessment -g "$Seed-Demo" -n $ArcWinVMname --assessment-frequency "PT1H"
