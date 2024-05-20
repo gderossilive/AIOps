@@ -1,4 +1,11 @@
 #!/bin/bash
+
+# IMPORTANT: before to start to execute this script, you need to create a .env file with the following content:
+# MySubscriptionId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# MyObjectId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# location=<your favorite location>
+# Refer to the .env.sample file for an example
+
 # import environment variables from .env file
 source .env
 
