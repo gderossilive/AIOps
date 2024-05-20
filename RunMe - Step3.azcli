@@ -62,6 +62,3 @@ az connectedmachine extension create \
 
 # assess the patches on the Arc enabled VM
 az connectedmachine assess-patches -g "$Seed-Demo" -n $ArcWinVMname
-
-# enable periodic patch assessment every 24 hours
-az connectedmachine set-patch-assessment -g "$Seed-Demo" -n $ArcWinVMname --assessment-frequency "PT24H"

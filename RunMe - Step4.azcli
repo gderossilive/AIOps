@@ -31,21 +31,11 @@ openAIServiceName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resou
 openAICustomDomainName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIName.value -o tsv)
 openAIdeploymentName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv)
 
-#$openAICustomDomainName= az cognitiveservices account show --name $openAIServiceName --resource-group  "$Seed-Demo" --query properties.endpoint -o tsv
-#$openAIserviceName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv
-#$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
-#$openAIdeploymentName=az cognitiveservices account deployment list --name $openAIName --resource-group  "$Seed-Demo" --query [].name -o tsv
-
-
-#$openAICustomDomainName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIName.value -o tsv
-#$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
-
-
-
-echo "OpenAI ServicePrincipal Id: $CopSp_id \`
-OpenAI ServicePrincipal Secret: $CopSp_pwd \`
-Tenant Id: $tenantID \`
-Key Vault Name: $KVname \`
-Log Analytics Workspace Name: $LAWname \`
-OpenAI Custom Domain Name: $openAICustomDomainName \`
+# print the output values used in the next steps of the deployment
+echo "OpenAI ServicePrincipal Id: $CopSp_id
+OpenAI ServicePrincipal Secret: $CopSp_pwd 
+Tenant Id: $tenantID 
+Key Vault Name: $KVname 
+Log Analytics Workspace Name: $LAWname 
+OpenAI Service Name: $openAICustomDomainName 
 OpenAI Deployment Name: $openAIdeploymentName"

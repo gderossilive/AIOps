@@ -12,7 +12,7 @@ I prerequisiti per poter installare questa demo sono:
 - Sottoscrizione Azure
 - Licenze copilot studio
 - Licenza Office 365
-- kubectl operativo
+- Un client con AzCLI e Kubectl installati ed aggiornati (si consiglia di utilizzare il codespace associato a questo repository)
 - Quota disponibile per servizi Azure OpenAI nella propria sottoscrizione
 
 # Setup della demo
@@ -76,7 +76,31 @@ L'obiettivo di questo script è:
 Per far questo basta eseguire lo script "RunMe - Step3.azcli"
 
 Le operazioni compiute dallo script sono:
+- Creare 2 DCR (una per la VM Arc-enabled e l'altra per il cluster AKS) per inviare i performance counter verso il Log Analytics Workspace 
+- Installare un'applicazione d'esempio all'interno del cluster AKS (pets-store)
+- Installare 2 extension all'interno della VM Arc-enabled (AMA+Dependency Agent)
+- Eseguire il patch assessment sulla VM Arc-enabled
 
+# 4- Setup del Modello GPT-3.5-Turbo
+L'obiettivo di questo script è:
+- Creare un'utenza applicativa per il Copilot
+- Creare un modello GPT-3.5-Turbo utilizzato in seguito dal Copilot
+
+Per far questo basta eseguire lo script "RunMe - Step4.azcli"
+
+Le operazioni compiute dallo script sono:
+- Creazione di un utenza per il Copilot con ruolo di Reader sul resource group creato durante questa installazione
+- Concedere l'accesso al Key Vault per l'utenza del Copilot
+- Creazione di un Open AI Service + deployment
+- Stampa dell'output dell'intero deployment con i dettagli per
+    - Utenza del Copilot
+    - Secret dell'utenza del Copilot
+    - TenantId del MS Entra Id
+    - Nome del Key Vault
+    - Nome del Log Analytics Workspace
+    - Nome dell'Azure OpenAI Service
+    - Nome del'Azure OpenAI Deployment
+Si consiglia di salvarsi queste informazioni perché saranno utilizzate nel passi successivi del deployment
 
 ## Import del Copilot all'interno di Copilot Studio via PowerAutomate
 
