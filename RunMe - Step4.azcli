@@ -32,10 +32,11 @@ openAICustomDomainName=$(az deployment group show --name "OpenAIDeploy-$Seed" --
 openAIdeploymentName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv)
 
 # print the output values used in the next steps of the deployment
-echo "OpenAI ServicePrincipal Id: $CopSp_id
-OpenAI ServicePrincipal Secret: $CopSp_pwd 
-Tenant Id: $tenantID 
+echo "Client ID: $CopSp_id
+Client Secret: $CopSp_pwd 
+Tenant ID: $tenantID 
 Key Vault Name: $KVname 
 Log Analytics Workspace Name: $LAWname 
+Resource Group Name: $Seed-Demo
 OpenAI Service Name: $openAICustomDomainName 
 OpenAI Deployment Name: $openAIdeploymentName"

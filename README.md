@@ -103,21 +103,53 @@ Le operazioni compiute dallo script sono:
 Si consiglia di salvarsi queste informazioni perché saranno utilizzate nel passi successivi del deployment
 
 ## Import del Copilot all'interno di Copilot Studio via PowerAutomate
+Questo passaggio verrà eseguito all'interno di Powerautomate. Quindi si cosiglia di aprire il borwser ed inserire l'indirizzo: https://make.powerautomate.com ed autenticarsi con le credenziali di amministratore del tenant
 
 ### Import della Solution
-Per poter importare la Solution è necessario:
+Per poter importare la Solution sono necessari 3 passaggi: import delle 2 connectione reference (Azure Key Vault, Azure Monitor) ed infine l'import del Copilot. Per partire basta cliccare su 'Import solution'
 
-- Selezionare Solutions
-- Cliccare su 'Import solution'
-- Cliccare su Browse e scegliere il file zip contenente la Solution 'Files/OpsCopBot_1_0_0_2.zip'
+#### Import della prima connection reference (Azure Key Vault)
+- Cliccare su Browse e scegliere il file zip contenente la Solution 'Files/OpsCopAkvConn_1_0_0_2.zip' e cliccare Open
 - Cliccare Next
 - Cliccare Next
-- Per ogni Connection scegliere quella corrispondete precedentemente creata
+- Cliccare sui tre puntini (...) e selezionare "+Add new connection"
+    - Authentication type: selezionare Service Principal authentication
+    - Per i campi successivi, inserire i valori corrispondanti presi dall'output dello Step4 (Client ID, Client Secret, Tenant ID, Key vault name)
+    - Terminare cliccando create
 - Cliccare Import
-- Aspettare che l'operazione di import finisca
+- Aspettare che l'operazione di import finisca e verificare il successo dell'operazione
 
-### Verifca dell'import a configurazione del Copilot
-Se l'import è finito con successo, basterò andare su https://copilotstudio.preview.microsoft.com/ per vedere il copilot Operations appena creato.
+#### Import della seconda connection reference (Azure Monitor)
+- Cliccare su Browse e scegliere il file zip contenente la Solution 'Files/OpsCopAzMonConn_1_0_0_2.zip' e cliccare Open
+- Cliccare Next
+- Cliccare Next
+- Cliccare sui tre puntini (...) e selezionare "+Add new connection"
+    - Authentication type: selezionare Service Principal authentication
+    - Per i campi successivi, inserire i valori corrispondanti presi dall'output dello Step4 (Client ID, Client Secret, Tenant ID)
+    - Terminare cliccando create
+- Cliccare Import
+- Aspettare che l'operazione di import finisca e verificare il successo dell'operazione
 
-Per la configurazione del Copilot:
+#### Import del Copilot
+- Cliccare su Browse e scegliere il file zip contenente la Solution 'Files/OpsCopBot_1_0_0_2.zip' e cliccare Open
+- Cliccare Next
+- Cliccare Import
+- Aspettare che l'operazione di import finisca e verificare il successo dell'operazione
 
+### Verifca dell'import
+Per verificare che l'import sia finito con successo, bisognerà collegarsi a https://copilotstudio.preview.microsoft.com/ e visualizzare un nuovo Copilot chiamato 'Operations' nella sezione Copilots selezionabile in alto a sinistra
+
+Cliccando sul nome del Copilot (Operations) e poi su Topics si potrà vedere la lista dei Topics custom creati per questo copilot (AKS Health Check, Anomalies v2, CMDBv2, Connections, DCs Health, Metrics e Patching)
+
+### Configurazione del Copilot
+Per configurare il Copilot, cliccare su 'System (8)' in alto e poi sul topic 'Conversation Start' 
+
+Qui troveremo 8 box del tipo 'Set variable value' sulle quali fare le seguenti operazioni:
+1) Global.ServerName: verificare che il valore sia 'DC-1'
+2) Global.LAWName: inserire il 'Log Analytics Workspace Name' recuparato alla fine dello Step4
+3) Global.RGName inserire il 'Resource Group Name' recuparato alla fine dello Step4
+4) Global.TenantId inserire il 'Tenant ID' recuparato alla fine dello Step4
+5) Global.SPId inserire il 'Client ID' recuparato alla fine dello Step4
+6) Global.KVName inserire il 'Key Vault Name' recuparato alla fine dello Step4
+7) Global.OAIService inserire il 'OpenAI Service Name' recuparato alla fine dello Step4
+8) Global.OAIDeployment inserire il 'OpenAI Deployment Name' recuparato alla fine dello Step4
