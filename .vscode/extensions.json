@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "ms-vscode.azurecli",
+        "ms-azuretools.azure-dev",
+        "ms-azuretools.vscode-azureresourcegroups",
+        "ms-azuretools.vscode-bicep",
+        "github.copilot",
+        "ms-vscode.azure-account"
+    ]
+}
