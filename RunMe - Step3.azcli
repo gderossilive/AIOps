@@ -2,8 +2,6 @@
 # Retrieve the Log Analytics Workspace name and the Arc enabled VM name from the deployment outputs
 LAWname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value -o tsv)
 
-echo $LAWname
-
 # get the log analytics workspace shared key
 LawKey=$(az monitor log-analytics workspace get-shared-keys --name "LA-$Seed" --resource-group "$Seed-Demo" --query primarySharedKey -o tsv) 
 # get log analytics workspace id
@@ -14,8 +12,6 @@ ArcWinVMname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properti
 AksName=$(az aks show --resource-group "$Seed-Demo" --name "AKS-$Seed" --query name -o tsv)
 ArcVMlist="[\"$ArcWinVMname\"]"
 AKSlist="[\"$AksName\"]"
-
-echo $ArcVMlist
 
 # Create 2 Data Collection Rules to send the Performance counter from Arc anabled VMs and AKS to the LA Workspace
 az deployment group create \
