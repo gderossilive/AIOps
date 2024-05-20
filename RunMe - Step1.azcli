@@ -21,8 +21,8 @@ adminPassword=$(printf -v s '%s' {a..z} {A..Z} {0..9}; echo ${s:$((RANDOM % ${#s
 az group create --name "$Seed-Demo" --location "$location"
 
 # Create the SSH key for the AKS Cluster
-SSHPublickey=$(az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o tsv)
-SSHPublickey2=${SSHPublickey/ generated-by-azure/}
+SSHPublickeyTemp=$(az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o tsv)
+SSHPublickey=${SSHPublickeyTemp/ generated-by-azure/}
 
 # Create the hub&spoke infrastructure
 az deployment sub create \
@@ -35,5 +35,5 @@ az deployment sub create \
           Seed=$Seed \
           MyObjectId=$MyObecjectId \
           adminPassword=$adminPassword \
-          SSHPublickey="$SSHPublickey2" \
+          SSHPublickey="$SSHPublickey" \
           WinNum=1 
