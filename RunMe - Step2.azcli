@@ -21,6 +21,6 @@ az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azur
           -SubscriptionId $subscriptionID  \`
           -TenantId $tenantID  \`
           -ResourceGroupName $Seed-Demo  \`
-          -Location $ENV:location  \`
+          -Location $location  \`
           -ServicePrincipalId $ArcSp_id  \`
           -Password $ArcSp_pwd"

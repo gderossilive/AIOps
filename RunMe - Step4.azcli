@@ -1,12 +1,13 @@
+#!/bin/bash
 # Retrieve the Key Vault name from the deployment outputs 
-$KVname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.kvName.value
+KVname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.kvName.value -o tsv)
 
 # Create a service principal for the Copilot with the Reader RBAC role on the Resource Group
-$CopSp_pwd=az ad sp create-for-rbac --name "CopilotReaderSP-$Seed" `
-                         --role "Reader" `
-                         --scopes "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo" `
-                         --query "password" -o tsv
-$CopSp_id=az ad sp list --filter "displayname eq 'CopilotReaderSP-$Seed'" --query "[0].appId" -o tsv
+CopSp_pwd=$(az ad sp create-for-rbac --name "CopilotReaderSP-$Seed" \
+                         --role "Reader" \
+                         --scopes "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo" \
+                         --query "password" -o tsv)
+CopSp_id=$(az ad sp list --filter "displayname eq 'CopilotReaderSP-$Seed'" --query "[0].appId" -o tsv)
 
 # Assign the Reader role to the Copilot Service Principal to access the Log Analytics workspace
 az role assignment create --assignee $CopSp_id --role "Reader" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
@@ -15,14 +16,14 @@ az role assignment create --assignee $CopSp_id --role "Reader" --scope "/subscri
 az role assignment create --assignee $CopSp_id --role "Key Vault Secrets User" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
 
 # Create OpenAI Service + Deployment + RAI Policy
-az deployment group create `
-     --name "OpenAIDeploy-$Seed" `
-     --resource-group "$Seed-Demo" `
-     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/OpenAI.json' `
-     --parameters `
-          location='swedencentral' `
-          SPsecret=$CopSp_pwd `
-          KVname=$KVname `
+az deployment group create \
+     --name "OpenAIDeploy-$Seed" \
+     --resource-group "$Seed-Demo" \
+     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/OpenAI.json' \
+     --parameters \
+          location='swedencentral' \
+          SPsecret=$CopSp_pwd \
+          KVname=$KVname \
           Seed=$Seed 
 
 
