@@ -159,7 +159,7 @@ Dopo aver modificato gli 8 valori:
 - Ricaricare il copilot cliccando sulla freccia circolare accanto alla scritta Chat (debug mode)
 
 ### Verifica del corretto funzionamento del Copilot
-Per testare il corretto funzionamento dei diversi flussi, inserire le seguenti richiest all'interno della finestra chat del Copilot
+Per testare il corretto funzionamento dei diversi flussi, inserire le seguenti richieste all'interno della finestra chat del Copilot
 - Give a descritpion for my environment
 - Give a descritpion for my environment in Italian
 - Give me the health check status for my AKS
@@ -170,3 +170,25 @@ Per testare il corretto funzionamento dei diversi flussi, inserire le seguenti r
 - What about missed patches?
 
 ### Pubblicare il Copilot in Teams
+Per pubblicare il Copilot in Teams:
+- Cliccare sulla sezione Publish del Copilot Studio
+- Cliccare il bottono Publish e confermare nella finestra di verifica
+- Attendere che il processo finisca con successo
+- Cliccare sul link "Go to channels"
+- Selezionare "Microsoft Teams"
+- Se è la prima volta che si accede a questa sezione bisognerà cliccare il bottonone "Turn on Teams"
+- Cliccare il bottono "Availability options"
+- Cliccare il bottone "Download .zip" e salvare il file in locale
+- Aprire Teams seguendo il link "https://teams.microsoft.com/"
+- Cliccare sulla sezione "Apps" nel menù di sinistra
+- Cliccare su "Manage your apps"
+- Cliccare su "Upload an app" 
+- Selezionare "Upload an app to yuor org's app catalog"
+- Selezionare il file salvato in locale e cliccare "Open"
+- Al termine del caricamento dell'App verrà visualizzata nell'elenco delle App disponibili
+- Cliccare sull'App e poi sul bottone "Open"
+- Si apre la chat con il Copilot dove comparirà il messaggio di benvenuto
+- A questo punto si può verificare il corretto funzionamento del Copilot utilizzando le stesse richieste riportate nel paragrafo "Verifica del corretto funzionamento del Copilot"
+
+
+
