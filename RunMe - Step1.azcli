@@ -3,13 +3,14 @@
 # IMPORTANT: before to start to execute this script, you need to create a .env file with the following content:
 # MySubscriptionId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 # MyObjectId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# MyTenantId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 # location=<your favorite location>
 # Refer to the .env.sample file for an example
 
 # import environment variables from .env file
 source .env
 
-az login --tenant '28af980a-bd09-411a-a039-6c915ebd87b5' --use-device-code
+az login --tenant $MyTenantId --use-device-code
 az account set --subscription $MySubscriptionId # MCAPS tenant
 
 # Seed is a random string used to create unique names for the resources
@@ -28,7 +29,7 @@ SSHPublickey=${SSHPublickeyTemp/ generated-by-azure/}
 az deployment sub create \
      --name "CoreDeploy-$Seed" \
      --location $location \
-     --template-file './Main.bicep' \
+     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/Main.json' \
      --parameters \
           'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' \
           location=$location \

@@ -154,4 +154,19 @@ Qui troveremo 8 box del tipo 'Set variable value' sulle quali fare le seguenti o
 7) Global.OAIService inserire il 'OpenAI Service Name' recuparato alla fine dello Step4
 8) Global.OAIDeployment inserire il 'OpenAI Deployment Name' recuparato alla fine dello Step4
 
+Dopo aver modificato gli 8 valori:
+- Cliccare Save in alto a destra 
+- Ricaricare il copilot cliccando sulla freccia circolare accanto alla scritta Chat (debug mode)
+
 ### Verifica del corretto funzionamento del Copilot
+Per testare il corretto funzionamento dei diversi flussi, inserire le seguenti richiest all'interno della finestra chat del Copilot
+- Give a descritpion for my environment
+- Give a descritpion for my environment in Italian
+- Give me the health check status for my AKS
+- Give me my DCs' health check
+- Check DC anomalies
+- Which metrics are you able to manage?
+- I want to check network connections status on my servers
+- What about missed patches?
+
+### Pubblicare il Copilot in Teams
