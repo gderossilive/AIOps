@@ -1,4 +1,4 @@
-# Demo di un Copilot per IT Operations 
+# Demos di un Copilot per IT Operations 
 
 Questa demo ha l'obiettivo di dimostrare come poter interrogare via copilot i dati utili al personale di operations e raccolti all'interno di Azure Monitor. I dati sono relativi a 2  risorse Azure:
 - Un Azure Kubernetes Cluster (AKS)
