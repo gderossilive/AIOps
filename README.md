@@ -12,8 +12,8 @@ I prerequisiti per poter installare questa demo sono:
 - Sottoscrizione Azure
 - Licenze copilot studio
 - Licenza Office 365
-- kubectl operativo
-- Quota disponibile per servizi Azure OpenAI nella propria sottoscrizione
+- Un client con AzCLI e Kubectl installati ed aggiornati (si consiglia di utilizzare il codespace associato a questo repository)
+- Quota disponibile per servizi Azure OpenAI per la propria sottoscrizione
 
 # Setup della demo
 
@@ -25,6 +25,7 @@ Il setup di questo copilot richiede una serie di passi:
 - Import e configurazione del Copilot e dei relativi flow in PowerAutomate
 - Pubblicazione del Copilot all'interno di Microsoft Teams
 
+## 1 - Setup delle risorse utili per la demo
 ## 1 - Setup delle risorse utili per la demo
 Obiettivo di questo script è quello di fare il setup delle seguenti componenti:
 - un Resource Group che conterrà tutte le risorse Azure utilizzate dalla demo
@@ -53,6 +54,7 @@ Le operazioni compiute dallo script sono:
 - Esegue il comando az deployment sub create per creare l'infrastruttura di rete, il key vault, il cluster AKS, la VM che verrà poi abilitata con Azure Arc, il Log Analytics Workspace per la raccolta dei dati di monitoring. Vengono specificati i parametri necessari da passare all'ARM template per la sua esecuzione
 
 ## 2 - Onboarding Arc della VM
+## 2 - Onboarding Arc della VM
 L'obiettivo di questo script è automatizzare il più possibile l'onboarding di una VM su Azure Arc. Inizia perciò con la creazione di un service principal, gli assegna il ruolo "Azure Connected Machine Onboarding" e finisce fornendo le istruzioni per completare l'onboarding
 
 Di seguito i passi principali da eseguire:
@@ -68,6 +70,7 @@ Di seguito i passi principali da eseguire:
 - Eseguire il comando dato in output dallo script all'interno di una Powershell
 - Verificare all'interno del portale di Azure che l'onboarding della VM in Arc sia avvenuto correttamente
 
+## 3 - Onboarding della VM e del Cluster AKS in Azure Monitor
 ## 3 - Onboarding della VM e del Cluster AKS in Azure Monitor
 L'obiettivo di questo script è:
 - Attivare VM Insights sull'Arc enabled VM
@@ -90,21 +93,92 @@ L'obiettivo dello script è:
 Le operazioni principali compiute della script sono:
 
 ## Import del Copilot all'interno di Copilot Studio via PowerAutomate
+Questo passaggio verrà eseguito all'interno di Powerautomate. Quindi si cosiglia di aprire il borwser ed inserire l'indirizzo: https://make.powerautomate.com ed autenticarsi con le credenziali di amministratore del tenant
 
 ### Import della Solution
-Per poter importare la Solution è necessario:
+Per poter importare la Solution sono necessari 3 passaggi: import delle 2 connectione reference (Azure Key Vault, Azure Monitor) ed infine l'import del Copilot. Per partire basta cliccare su 'Import solution'
 
-- Selezionare Solutions
-- Cliccare su 'Import solution'
-- Cliccare su Browse e scegliere il file zip contenente la Solution 'Files/OpsCopBot_1_0_0_2.zip'
+#### Import della prima connection reference (Azure Key Vault)
+- Cliccare su Browse e scegliere il file zip contenente la Solution 'Files/OpsCopAkvConn_1_0_0_2.zip' e cliccare Open
 - Cliccare Next
 - Cliccare Next
-- Per ogni Connection scegliere quella corrispondete precedentemente creata
+- Cliccare sui tre puntini (...) e selezionare "+Add new connection"
+    - Authentication type: selezionare Service Principal authentication
+    - Per i campi successivi, inserire i valori corrispondanti presi dall'output dello Step4 (Client ID, Client Secret, Tenant ID, Key vault name)
+    - Terminare cliccando create
 - Cliccare Import
-- Aspettare che l'operazione di import finisca
+- Aspettare che l'operazione di import finisca e verificare il successo dell'operazione
 
-### Verifca dell'import a configurazione del Copilot
-Se l'import è finito con successo, basterò andare su https://copilotstudio.preview.microsoft.com/ per vedere il copilot Operations appena creato.
+#### Import della seconda connection reference (Azure Monitor)
+- Cliccare su Browse e scegliere il file zip contenente la Solution 'Files/OpsCopAzMonConn_1_0_0_2.zip' e cliccare Open
+- Cliccare Next
+- Cliccare Next
+- Cliccare sui tre puntini (...) e selezionare "+Add new connection"
+    - Authentication type: selezionare Service Principal authentication
+    - Per i campi successivi, inserire i valori corrispondanti presi dall'output dello Step4 (Client ID, Client Secret, Tenant ID)
+    - Terminare cliccando create
+- Cliccare Import
+- Aspettare che l'operazione di import finisca e verificare il successo dell'operazione
 
-Per la configurazione del Copilot:
+#### Import del Copilot
+- Cliccare su Browse e scegliere il file zip contenente la Solution 'Files/OpsCopBot_1_0_0_2.zip' e cliccare Open
+- Cliccare Next
+- Cliccare Import
+- Aspettare che l'operazione di import finisca e verificare il successo dell'operazione
+
+### Verifca dell'import
+Per verificare che l'import sia finito con successo, bisognerà collegarsi a https://copilotstudio.preview.microsoft.com/ e visualizzare un nuovo Copilot chiamato 'Operations' nella sezione Copilots selezionabile in alto a sinistra
+
+Cliccando sul nome del Copilot (Operations) e poi su Topics si potrà vedere la lista dei Topics custom creati per questo copilot (AKS Health Check, Anomalies v2, CMDBv2, Connections, DCs Health, Metrics e Patching)
+
+### Configurazione del Copilot
+Per configurare il Copilot, cliccare su 'System (8)' in alto e poi sul topic 'Conversation Start' 
+
+Qui troveremo 8 box del tipo 'Set variable value' sulle quali fare le seguenti operazioni:
+1) Global.ServerName: verificare che il valore sia 'DC-1'
+2) Global.LAWName: inserire il 'Log Analytics Workspace Name' recuparato alla fine dello Step4
+3) Global.RGName inserire il 'Resource Group Name' recuparato alla fine dello Step4
+4) Global.TenantId inserire il 'Tenant ID' recuparato alla fine dello Step4
+5) Global.SPId inserire il 'Client ID' recuparato alla fine dello Step4
+6) Global.KVName inserire il 'Key Vault Name' recuparato alla fine dello Step4
+7) Global.OAIService inserire il 'OpenAI Service Name' recuparato alla fine dello Step4
+8) Global.OAIDeployment inserire il 'OpenAI Deployment Name' recuparato alla fine dello Step4
+
+Dopo aver modificato gli 8 valori:
+- Cliccare Save in alto a destra 
+- Ricaricare il copilot cliccando sulla freccia circolare accanto alla scritta Chat (debug mode)
+
+### Verifica del corretto funzionamento del Copilot
+Per testare il corretto funzionamento dei diversi flussi, inserire le seguenti richieste all'interno della finestra chat del Copilot
+- Give a descritpion for my environment
+- Give a descritpion for my environment in Italian
+- Give me the health check status for my AKS
+- Give me my DCs' health check
+- Check DC anomalies
+- Which metrics are you able to manage?
+- I want to check network connections status on my servers
+- What about missed patches?
+
+### Pubblicare il Copilot in Teams
+Per pubblicare il Copilot in Teams:
+- Cliccare sulla sezione Publish del Copilot Studio
+- Cliccare il bottono Publish e confermare nella finestra di verifica
+- Attendere che il processo finisca con successo
+- Cliccare sul link "Go to channels"
+- Selezionare "Microsoft Teams"
+- Se è la prima volta che si accede a questa sezione bisognerà cliccare il bottonone "Turn on Teams"
+- Cliccare il bottono "Availability options"
+- Cliccare il bottone "Download .zip" e salvare il file in locale
+- Aprire Teams seguendo il link "https://teams.microsoft.com/"
+- Cliccare sulla sezione "Apps" nel menù di sinistra
+- Cliccare su "Manage your apps"
+- Cliccare su "Upload an app" 
+- Selezionare "Upload an app to yuor org's app catalog"
+- Selezionare il file salvato in locale e cliccare "Open"
+- Al termine del caricamento dell'App verrà visualizzata nell'elenco delle App disponibili
+- Cliccare sull'App e poi sul bottone "Open"
+- Si apre la chat con il Copilot dove comparirà il messaggio di benvenuto
+- A questo punto si può verificare il corretto funzionamento del Copilot utilizzando le stesse richieste riportate nel paragrafo "Verifica del corretto funzionamento del Copilot"
+
+
 

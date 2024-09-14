@@ -1,27 +1,29 @@
+#!/bin/bash
 # Retrieve the Log Analytics Workspace name and the Arc enabled VM name from the deployment outputs
-$LAWname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value
+LAWname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value -o tsv)
+
 # get the log analytics workspace shared key
-$LawKey=az monitor log-analytics workspace get-shared-keys --name "LA-$Seed" --resource-group "$Seed-Demo" --query primarySharedKey -o tsv 
+LawKey=$(az monitor log-analytics workspace get-shared-keys --name "LA-$Seed" --resource-group "$Seed-Demo" --query primarySharedKey -o tsv) 
 # get log analytics workspace id
-$LawId=az monitor log-analytics workspace show --name "LA-$Seed" --resource-group "$Seed-Demo" --query customerId -o tsv
-$ArcWinVMname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv
+LawId=$(az monitor log-analytics workspace show --name "LA-$Seed" --resource-group "$Seed-Demo" --query customerId -o tsv)
+ArcWinVMname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv)
 #$AKSName=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.aksName.value -o tsv
 # get AKS cluster name
-$AksName=az aks show --resource-group "$Seed-Demo" --name "AKS-$Seed" --query name -o tsv
-$ArcVMlist='[\"'+$ArcWinVMname+'\"]'
-$AKSlist='[\"'+$AksName+'\"]'
+AksName=$(az aks show --resource-group "$Seed-Demo" --name "AKS-$Seed" --query name -o tsv)
+ArcVMlist="[\"$ArcWinVMname\"]"
+AKSlist="[\"$AksName\"]"
 
 # Create 2 Data Collection Rules to send the Performance counter from Arc anabled VMs and AKS to the LA Workspace
-az deployment group create `
-     --name "AzMonDeploy-$Seed" `
-     --resource-group "$Seed-Demo" `
-     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/DCR.json' `
-     --parameters `
-          WorkspaceName=$LAWname `
-          location=$ENV:location `
-          Seed=$Seed `
-          VMlist=$ArcVMlist `
-          AKSlist=$AKSlist
+az deployment group create \
+     --name "AzMonDeploy-$Seed" \
+     --resource-group "$Seed-Demo" \
+     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/DCR.json' \
+     --parameters \
+          WorkspaceName=$LAWname \
+          location=$location \
+          Seed=$Seed \
+          VMlist="$ArcVMlist" \
+          AKSlist="$AKSlist"
 
 # connect to the AKS cluster
 az aks get-credentials --resource-group "$Seed-Demo" --name "AKS-$Seed" --overwrite-existing
@@ -34,26 +36,29 @@ kubectl create namespace 'pets-store'
 # Deploy a sample AKS application
 kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/aks-store-quickstart.yaml' -n 'pets-store'
 
+# Allow installing extensions without prompt
+az config set extension.use_dynamic_install=yes_without_prompt
+
 # setup the AMA extension on the Arc enabled VM
-az connectedmachine extension create `
-	--machine-name $ArcWinVMname `
-	--location $ENV:location `
-	--name 'AzureMonitorWindowsAgent' `
-	--resource-group "$Seed-Demo" `
-	--type "AzureMonitorWindowsAgent" `
-	--publisher "Microsoft.Azure.Monitor" `
+az connectedmachine extension create \
+	--machine-name $ArcWinVMname \
+	--location $location \
+	--name 'AzureMonitorWindowsAgent' \
+	--resource-group "$Seed-Demo" \
+	--type "AzureMonitorWindowsAgent" \
+	--publisher "Microsoft.Azure.Monitor" \
 	--enable-auto-upgrade true
 
 # setup the dependency agent on the Arc enabled VM
-az connectedmachine extension create `
-     --machine-name $ArcWinVMname `
-     --location $ENV:location `
-     --name 'DependencyAgentWindows' `
-     --resource-group "$Seed-Demo" `
-     --type "DependencyAgentWindows" `
-     --publisher "Microsoft.Azure.Monitoring.DependencyAgent" `
-     --settings '{\"enableAMA\": \"true\"}' `
+az connectedmachine extension create \
+     --machine-name $ArcWinVMname \
+     --location $location \
+     --name 'DependencyAgentWindows' \
+     --resource-group "$Seed-Demo" \
+     --type "DependencyAgentWindows" \
+     --publisher "Microsoft.Azure.Monitoring.DependencyAgent" \
+     --settings "{\"enableAMA\": \"true\"}" \
      --enable-auto-upgrade true
 
 # assess the patches on the Arc enabled VM
-az connectedmachine assess-patches -g "$Seed-Demo" -n "DC-1"
+az connectedmachine assess-patches -g "$Seed-Demo" -n $ArcWinVMname

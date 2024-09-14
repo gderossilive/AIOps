@@ -1,34 +1,42 @@
-# import environment variables from .env file
-get-content .env | foreach {
-    $name, $value = $_.split('=')
-    set-content ENV:\$name $value
-}
+#!/bin/bash
 
+# IMPORTANT: before to start to execute this script, you need to create a .env file with the following content:
+# MySubscriptionId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# MyObjectId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# MyTenantId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# location=<your favorite location>
+# Refer to the .env.sample file for an example
+
+# import environment variables from .env file
+source .env
+
+az login --tenant $MyTenantId --use-device-code
+az account set --subscription $MySubscriptionId # MCAPS tenant
 az login --scope https://management.core.windows.net//.default --tenant $ENV:MyTenantId
 az account set --subscription $ENV:MySubscriptionId # MCAPS tenant
 
 # Seed is a random string used to create unique names for the resources
-$Seed=(-join ((48..57) + (97..122) | Get-Random -Count 5 | % {[char]$_}))
-
-# password for the administrator account
-$adminPassword=(-join ((48..59) + (63..91) + (99..123) | Get-Random -count 15 | % {[char]$_})) 
+Seed=$(printf -v s '%s' {a..z} ; echo ${s:$((RANDOM % ${#s})):5};)
+# generate a random password choosing 7 characters from the alphabet a..z + A..Z + 0..9
+adminPassword=$(printf -v s '%s' {a..z} {A..Z} {0..9}; echo ${s:$((RANDOM % ${#s})):7} | base64)
 
 # Create the resource group
-az group create --name "$Seed-Demo" --location "$ENV:location"
+az group create --name "$Seed-Demo" --location "$location"
 
 # Create the SSH key for the AKS Cluster
-$SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
+SSHPublickeyTemp=$(az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o tsv)
+SSHPublickey=${SSHPublickeyTemp/ generated-by-azure/}
 
 # Create the hub&spoke infrastructure
-az deployment sub create `
-     --name "CoreDeploy-$Seed" `
-     --location "$ENV:location" `
-     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/Main.json' `
-     --parameters `
-          'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' `
-          location="$ENV:location" `
-          Seed=$Seed `
-          MyObjectId="$ENV:MyObecjectId" `
-          adminPassword=$adminPassword `
-          SSHPublickey=$SSHPublickey `
+az deployment sub create \
+     --name "CoreDeploy-$Seed" \
+     --location $location \
+     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/Main.json' \
+     --parameters \
+          'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' \
+          location=$location \
+          Seed=$Seed \
+          MyObjectId=$MyObecjectId \
+          adminPassword=$adminPassword \
+          SSHPublickey="$SSHPublickey" \
           WinNum=1 

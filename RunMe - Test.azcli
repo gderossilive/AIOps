@@ -1,76 +1,48 @@
-az login 
-az account set --subscription 89c1a3d1-e53c-4cf9-871a-9343d0221bb4 # MCAPS tenant
+#!/bin/bash
 
-# Seed is a random string used to create unique names for the resources
-$Seed=(New-Guid).ToString().Substring(0,5)
+# IMPORTANT: before to start to execute this script, you need to create a .env file with the following content:
+# MySubscriptionId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# MyObjectId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# MyTenantId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# location=<your favorite location>
+# Refer to the .env.sample file for an example
 
-# MyIP is the public IP address of the machine you are using to deploy the resources
-$MyIP="81.56.1.134"
+# import environment variables from .env file
+source .env
 
-# location for the resources
-$ENV:location='northeurope'
+subscriptionID=$(az account show --query id -o tsv)
 
-# password for the administrator account
-$adminPassword=(-join ((48..59) + (63..91) + (99..123) | Get-Random -count 15 | % {[char]$_})) 
-
-# MyObecjectId is the Object Id of the user that will have access to the administrator password of the VMs in the key vault
-$MyObecjectId='23015930-8d86-453a-9fb0-c81dd1df4902' # MCAPS - L'object Id dell'utente gderossi_microsoft.com#EXT#@MngEnvMCAP462233.onmicrosoft.com 
-
-# Create the resource group
-az group create --name "$Seed-Demo" --location $ENV:location
-
-# Create the SSH key for the AKS Cluster
-$SSHPublickey=az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o json
-
-# Deploy the Demo environment infrastructure
-az deployment sub create `
-     --name "CoreDeploy-$Seed" `
-     --location $ENV:location `
-     --template-file '.\Main.bicep' `
-     --parameters `
-          'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' `
-          location=$ENV:location `
-          Seed=$Seed `
-          MyObjectId=$MyObecjectId `
-          MyIPaddress=$MyIP `
-          adminPassword=$adminPassword `
-          SSHPublickey=$SSHPublickey `
-          WinNum=0 
-
-# Retrieve the Log Analytics Workspace name and the Arc enabled VM name from the deployment outputs
-$LAWname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value
-# get the log analytics workspace shared key
-$LawKey=az monitor log-analytics workspace get-shared-keys --name "LA-$Seed" --resource-group "$Seed-Demo" --query primarySharedKey -o tsv 
-# get log analytics workspace id
-$LawId=az monitor log-analytics workspace show --name "LA-$Seed" --resource-group "$Seed-Demo" --query customerId -o tsv
-$ArcWinVMname=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv
-#$AKSName=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.aksName.value -o tsv
-# get AKS cluster name
-$AksName=az aks show --resource-group "$Seed-Demo" --name "AKS-$Seed" --query name -o tsv
-$ArcVMlist='[\"'+$ArcWinVMname+'\"]'
-$AKSlist='[\"'+$AksName+'\"]'
-
-# Create 2 Data Collection Rules to send the Performance counter from Arc anabled VMs and AKS to the LA Workspace
-az deployment group create `
-     --name "AgentsDeploy-$Seed" `
-     --resource-group "$Seed-Demo" `
-     --template-file '.\src\DCR.bicep' `
-     --parameters `
-          WorkspaceName=$LAWname `
-          location=$ENV:location `
-          Seed=$Seed `
-          VMlist=$ArcVMlist `
-          AKSlist=$AKSlist
-
-# Configure data collection in Container insights using ConfigMap
-kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/container-azm-ms-agentconfig.yaml'
-kubectl describe pod ama-logs-rs-7d6765c4d-b7d8f -n kube-system
-
-# connect to the AKS cluster
-az aks get-credentials --resource-group "$Seed-Demo" --name "AKS-$Seed" --overwrite-existing
-# create a namespace for the sample application
-kubectl create namespace 'pets-store'
-# Deploy a sample AKS application
-kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/aks-store-quickstart.yaml' -n 'pets-store'
+if [ "$subscriptionID" != "$MySubscriptionId" ]; then
+    echo "You are not in the correct subscription. Please login."
+    az login --tenant $MyTenantId --use-device-code
+    az account set --subscription $MySubscriptionId # MCAPS tenant
+fi
 
 
+
+# input variable Seed
+read -p "Enter the Seed value: " Seed
+
+# find the Application ID of the service principal
+CopSp_id=$(az ad sp list --display-name "CopilotReaderSP-$Seed" --query "[0].appId" -o tsv)
+
+# find the secret value in the key vault
+CopSp_pwd=$(az keyvault secret show --name "SP-Secret" --vault-name "KV-$Seed" --query "value" -o tsv)
+
+# find the name of the key vault
+KVname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.kvName.value -o tsv)
+# find the name of the log analytics workspace
+LAWname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value -o tsv)
+
+openAICustomDomainName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIName.value -o tsv)
+openAIdeploymentName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv)
+
+
+echo "Client ID: $CopSp_id
+Client Secret: $CopSp_pwd 
+Tenant ID: $MyTenantId 
+Key Vault Name: $KVname 
+Log Analytics Workspace Name: $LAWname 
+Resource Group Name: $Seed-Demo
+OpenAI Service Name: $openAICustomDomainName 
+OpenAI Deployment Name: $openAIdeploymentName"
