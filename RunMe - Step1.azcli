@@ -10,8 +10,8 @@
 # import environment variables from .env file
 source .env
 
-az login --tenant $MyTenantId --use-device-code
-az account set --subscription $MySubscriptionId # MCAPS tenant
+#az login --tenant $MyTenantId --use-device-code
+#az account set --subscription $MySubscriptionId # MCAPS tenant
 az login --scope https://management.core.windows.net//.default --tenant $ENV:MyTenantId
 az account set --subscription $ENV:MySubscriptionId # MCAPS tenant
 
