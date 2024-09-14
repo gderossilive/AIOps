@@ -4,7 +4,7 @@ get-content .env | foreach {
     set-content ENV:\$name $value
 }
 
-az login --use-device-code
+az login --scope https://management.core.windows.net//.default --tenant $ENV:MyTenantId
 az account set --subscription $ENV:MySubscriptionId # MCAPS tenant
 
 # Seed is a random string used to create unique names for the resources

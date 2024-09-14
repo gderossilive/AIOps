@@ -39,6 +39,9 @@ $openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --res
 #$openAICustomDomainName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIName.value -o tsv
 #$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
 
+# to save money you cand delete the Azure Bastion ans Bastion Public IP
+az network bastion delete --name "Bastion-$Seed" --resource-group "$Seed-Demo"
+az network public-ip delete --name "BastionPublicIP-$Seed" --resource-group "$Seed-Demo"
 
 
 Write-Host "OpenAI ServicePrincipal Id: $CopSp_id ``

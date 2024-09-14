@@ -1,0 +1,2 @@
+# turn on AKS
+az aks start --name "AKS-$Seed" --resource-group "$Seed-Demo"

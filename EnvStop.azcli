@@ -1,0 +1,2 @@
+# turn off AKS
+az aks stop --name "AKS-$Seed" --resource-group "$Seed-Demo"

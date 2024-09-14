@@ -31,7 +31,7 @@ resource LAW 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
   name: LAWName
 }
 
-resource aks 'Microsoft.ContainerService/managedClusters@2023-11-02-preview' = {
+resource aks 'Microsoft.ContainerService/managedClusters@2024-04-02-preview' = {
   name: clusterName
   location: location
   identity: {
@@ -50,7 +50,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-11-02-preview' = {
         count: agentCount
         vmSize: agentVMSize
         osType: 'Linux'
-        osSKU: 'CBLMariner'
+        osSKU: 'Ubuntu'
         mode: 'System'
         type: 'VirtualMachineScaleSets'
         minCount: 1

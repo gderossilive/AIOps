@@ -23,3 +23,7 @@ az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azur
           -Location $ENV:location  ``
           -ServicePrincipalId $ArcSp_id  ``
           -Password $ArcSp_pwd"
+#    3 - To enable automatic check for updates for the Arc Agent, run the following commands:
+     $ServiceManager = (New-Object -com "Microsoft.Update.ServiceManager")
+     $ServiceID = "7971f918-a847-4430-9279-4a52d1efe18d"
+     $ServiceManager.AddService2($ServiceId,7,"")
