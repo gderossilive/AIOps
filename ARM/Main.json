@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.26.170.59819",
-      "templateHash": "17681524696247640297"
+      "version": "0.28.1.47646",
+      "templateHash": "10442360012350189205"
     }
   },
   "parameters": {
@@ -185,8 +185,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "14224423970170349422"
+              "version": "0.28.1.47646",
+              "templateHash": "13976035536806012941"
             }
           },
           "parameters": {
@@ -398,8 +398,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.26.170.59819",
-                      "templateHash": "8372397792485530058"
+                      "version": "0.28.1.47646",
+                      "templateHash": "10752044534046525469"
                     }
                   },
                   "parameters": {
@@ -583,8 +583,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "9860303310860809263"
+              "version": "0.28.1.47646",
+              "templateHash": "574713006253939711"
             }
           },
           "parameters": {
@@ -680,8 +680,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "17912358761543333813"
+              "version": "0.28.1.47646",
+              "templateHash": "7589798764335488724"
             }
           },
           "parameters": {
@@ -962,8 +962,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "17912358761543333813"
+              "version": "0.28.1.47646",
+              "templateHash": "7589798764335488724"
             }
           },
           "parameters": {
@@ -1219,8 +1219,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.26.170.59819",
-              "templateHash": "4823789562659052561"
+              "version": "0.28.1.47646",
+              "templateHash": "18067393204318834857"
             }
           },
           "parameters": {
@@ -1290,7 +1290,7 @@
           "resources": [
             {
               "type": "Microsoft.ContainerService/managedClusters",
-              "apiVersion": "2023-11-02-preview",
+              "apiVersion": "2024-04-02-preview",
               "name": "[parameters('clusterName')]",
               "location": "[parameters('location')]",
               "identity": {
@@ -1309,7 +1309,7 @@
                     "count": "[parameters('agentCount')]",
                     "vmSize": "[parameters('agentVMSize')]",
                     "osType": "Linux",
-                    "osSKU": "CBLMariner",
+                    "osSKU": "Ubuntu",
                     "mode": "System",
                     "type": "VirtualMachineScaleSets",
                     "minCount": 1,
@@ -1354,7 +1354,7 @@
           "outputs": {
             "controlPlaneFQDN": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2023-11-02-preview').fqdn]"
+              "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2024-04-02-preview').fqdn]"
             }
           }
         }
