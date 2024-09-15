@@ -14,19 +14,21 @@ source .env
 az config set extension.dynamic_install_allow_preview=true
 
 az login --tenant $MyTenantId --use-device-code
-#az account set --subscription $MySubscriptionId # MCAPS tenant
+#az account set --subscription $MySubscriptionId 
 #az login --scope https://management.core.windows.net//.default --tenant $MyTenantId
-az account set --subscription $MySubscriptionId # MCAPS tenant
+az account set --subscription $MySubscriptionId 
 
 # Seed is a random string used to create unique names for the resources
-Seed='AIOps'
+Seed='aiops'
 Salt=$(printf -v s '%s' {a..z} ; echo ${s:$((RANDOM % ${#s})):5};)
 RGname="$Seed-$Salt"
 # generate a random password choosing 7 characters from the alphabet a..z + A..Z + 0..9
 adminPassword=$(printf -v s '%s' {a..z} {A..Z} {0..9}; echo ${s:$((RANDOM % ${#s})):14} | base64)
 
 # Create the resource group
+echo "Creating Resource Group $RGname in $location"
 az group create --name $RGname --location "$location"
+
 
 # Create the SSH key for the AKS Cluster
 SSHPublickeyTemp=$(az sshkey create --name "SSHKey-$Salt" --resource-group $RGname --query "publicKey" -o tsv)
