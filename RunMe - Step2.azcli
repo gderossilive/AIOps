@@ -5,12 +5,12 @@ subscriptionID=$(az account show --query id -o tsv)
 subscriptionName=$(az account show --query name -o tsv)
 
 # Create a service principal for the Arc resource group using a preferred name and role
-ArcSp_pwd=$(az ad sp create-for-rbac --name "ArcDeploySP-$Seed" \
+ArcSp_pwd=$(az ad sp create-for-rbac --name "ArcDeploySP-$Salt" \
                          --role "Azure Connected Machine Onboarding" \
-                         --scopes "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo" \
+                         --scopes "/subscriptions/$subscriptionID/resourceGroups/$RGname" \
                          --query "password" -o tsv)
-ArcSp_id=$(az ad sp list --filter "displayname eq 'ArcDeploySP-$Seed'" --query "[0].appId" -o tsv)
-az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azure Arc Onboarding" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
+ArcSp_id=$(az ad sp list --filter "displayname eq 'ArcDeploySP-$Salt'" --query "[0].appId" -o tsv)
+az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azure Arc Onboarding" --scope "/subscriptions/$subscriptionID/resourceGroups/$RGname"
 
 # To onboard on Arc this VM: 
 #   1 - Open an RDP session on the VM 
@@ -20,7 +20,7 @@ az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azur
           -File 'c:\windows\temp\step1.ps1' \`
           -SubscriptionId $subscriptionID  \`
           -TenantId $tenantID  \`
-          -ResourceGroupName $Seed-Demo  \`
+          -ResourceGroupName $RGname  \`
           -Location $location  \`
           -ServicePrincipalId $ArcSp_id  \`
           -Password $ArcSp_pwd"

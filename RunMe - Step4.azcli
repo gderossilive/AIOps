@@ -1,54 +1,54 @@
 #!/bin/bash
 # Retrieve the Key Vault name from the deployment outputs 
-KVname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.kvName.value -o tsv)
+KVname=$(az deployment sub show --name "CoreDeploy-$Salt" --query properties.outputs.kvName.value -o tsv)
 
 # Create a service principal for the Copilot with the Reader RBAC role on the Resource Group
-CopSp_pwd=$(az ad sp create-for-rbac --name "CopilotReaderSP-$Seed" \
+CopSp_pwd=$(az ad sp create-for-rbac --name "CopilotReaderSP-$Salt" \
                          --role "Reader" \
-                         --scopes "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo" \
+                         --scopes "/subscriptions/$subscriptionID/resourceGroups/$RGname" \
                          --query "password" -o tsv)
-CopSp_id=$(az ad sp list --filter "displayname eq 'CopilotReaderSP-$Seed'" --query "[0].appId" -o tsv)
+CopSp_id=$(az ad sp list --filter "displayname eq 'CopilotReaderSP-$Salt'" --query "[0].appId" -o tsv)
 
 # Assign the Reader role to the Copilot Service Principal to access the Log Analytics workspace
-az role assignment create --assignee $CopSp_id --role "Reader" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
+az role assignment create --assignee $CopSp_id --role "Reader" --scope "/subscriptions/$subscriptionID/resourceGroups/$RGname"
 
 # Assign the Key Vault Secrets User role to the Copilot Service Principal to access the OpenAI API key and the Service Principal secret
-az role assignment create --assignee $CopSp_id --role "Key Vault Secrets User" --scope "/subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
+az role assignment create --assignee $CopSp_id --role "Key Vault Secrets User" --scope "/subscriptions/$subscriptionID/resourceGroups/$RGname"
 
 # Create OpenAI Service + Deployment + RAI Policy
 az deployment group create \
-     --name "OpenAIDeploy-$Seed" \
-     --resource-group "$Seed-Demo" \
+     --name "OpenAIDeploy-$Salt" \
+     --resource-group $RGname \
      --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/OpenAI.json' \
      --parameters \
           location='swedencentral' \
           SPsecret=$CopSp_pwd \
           KVname=$KVname \
-          Seed=$Seed 
+          Seed=$Salt 
 
 
-$openAIServiceName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv
-$openAICustomDomainName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIName.value -o tsv
-$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
+openAIServiceName=$(az deployment group show --name "OpenAIDeploy-$Salt" --resource-group $RGname --query properties.outputs.openAIserviceName.value -o tsv)
+openAICustomDomainName=$(az deployment group show --name "OpenAIDeploy-$Salt" --resource-group $RGname --query properties.outputs.openAIName.value -o tsv)
+openAIdeploymentName=$(az deployment group show --name "OpenAIDeploy-$Salt" --resource-group $RGname --query properties.outputs.openAIdeploymentName.value -o tsv)
 
-#$openAICustomDomainName= az cognitiveservices account show --name $openAIServiceName --resource-group  "$Seed-Demo" --query properties.endpoint -o tsv
-#$openAIserviceName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv
-#$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
-#$openAIdeploymentName=az cognitiveservices account deployment list --name $openAIName --resource-group  "$Seed-Demo" --query [].name -o tsv
+#$openAICustomDomainName= az cognitiveservices account show --name $openAIServiceName --resource-group  $RGname --query properties.endpoint -o tsv
+#$openAIserviceName=az deployment group show --name "OpenAIDeploy-$Salt" --resource-group $RGname --query properties.outputs.openAIserviceName.value -o tsv
+#$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-$Salt" --resource-group $RGname --query properties.outputs.openAIdeploymentName.value -o tsv
+#$openAIdeploymentName=az cognitiveservices account deployment list --name $openAIName --resource-group  $RGname --query [].name -o tsv
 
 
 #$openAICustomDomainName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIName.value -o tsv
 #$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
 
-# to save money you cand delete the Azure Bastion ans Bastion Public IP
-az network bastion delete --name "Bastion-$Seed" --resource-group "$Seed-Demo"
-az network public-ip delete --name "BastionPublicIP-$Seed" --resource-group "$Seed-Demo"
+# to save money you cand delete the Azure Bastion and Bastion Public IP
+az network bastion delete --name "Bastion-$Salt" --resource-group $RGname
+az network public-ip delete --name "BastionPublicIP-$Salt" --resource-group $RGname
 
 
-Write-Host "OpenAI ServicePrincipal Id: $CopSp_id ``
-OpenAI ServicePrincipal Secret: $CopSp_pwd ``
-Tenant Id: $tenantID ``
-Key Vault Name: $KVname ``
-Log Analytics Workspace Name: $LAWname ``
-OpenAI Custom Domain Name: $openAICustomDomainName ``
+echo "OpenAI ServicePrincipal Id: $CopSp_id 
+OpenAI ServicePrincipal Secret: $CopSp_pwd
+Tenant Id: $tenantID 
+Key Vault Name: $KVname 
+Log Analytics Workspace Name: $LAWname 
+OpenAI Custom Domain Name: $openAICustomDomainName 
 OpenAI Deployment Name: $openAIdeploymentName"

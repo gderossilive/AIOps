@@ -1,32 +1,32 @@
 #!/bin/bash
 # Retrieve the Log Analytics Workspace name and the Arc enabled VM name from the deployment outputs
-LAWname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.laWname.value -o tsv)
+LAWname=$(az deployment sub show --name "CoreDeploy-$Salt" --query properties.outputs.laWname.value -o tsv)
 
 # get the log analytics workspace shared key
-LawKey=$(az monitor log-analytics workspace get-shared-keys --name "LA-$Seed" --resource-group "$Seed-Demo" --query primarySharedKey -o tsv) 
+LawKey=$(az monitor log-analytics workspace get-shared-keys --name "LA-$Salt" --resource-group $RGname --query primarySharedKey -o tsv) 
 # get log analytics workspace id
-LawId=$(az monitor log-analytics workspace show --name "LA-$Seed" --resource-group "$Seed-Demo" --query customerId -o tsv)
-ArcWinVMname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.winVMsName.value[0].name -o tsv)
-#$AKSName=az deployment sub show --name "CoreDeploy-$Seed" --query properties.outputs.aksName.value -o tsv
+LawId=$(az monitor log-analytics workspace show --name "LA-$Salt" --resource-group $RGname --query customerId -o tsv)
+ArcWinVMname=$(az deployment sub show --name "CoreDeploy-$Salt" --query properties.outputs.winVMsName.value[0].name -o tsv)
+#$AKSName=az deployment sub show --name "CoreDeploy-$Salt" --query properties.outputs.aksName.value -o tsv
 # get AKS cluster name
-AksName=$(az aks show --resource-group "$Seed-Demo" --name "AKS-$Seed" --query name -o tsv)
+AksName=$(az aks show --resource-group $RGname --name "AKS-$Salt" --query name -o tsv)
 ArcVMlist="[\"$ArcWinVMname\"]"
 AKSlist="[\"$AksName\"]"
 
 # Create 2 Data Collection Rules to send the Performance counter from Arc anabled VMs and AKS to the LA Workspace
 az deployment group create \
-     --name "AzMonDeploy-$Seed" \
-     --resource-group "$Seed-Demo" \
+     --name "AzMonDeploy-$Salt" \
+     --resource-group $RGname \
      --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/DCR.json' \
      --parameters \
           WorkspaceName=$LAWname \
           location=$location \
-          Seed=$Seed \
+          Seed=$Salt \
           VMlist="$ArcVMlist" \
           AKSlist="$AKSlist"
 
 # connect to the AKS cluster
-az aks get-credentials --resource-group "$Seed-Demo" --name "AKS-$Seed" --overwrite-existing
+az aks get-credentials --resource-group $RGname --name "AKS-$Salt" --overwrite-existing
 # Configure data collection in Container insights using ConfigMap
 kubectl apply -f 'https://raw.githubusercontent.com/gderossilive/AIOps/main/Files/container-azm-ms-agentconfig.yaml'
 # kubectl describe pod ama-logs-rs-6494f748b4-h2rtb -n kube-system
@@ -44,7 +44,7 @@ az connectedmachine extension create \
 	--machine-name $ArcWinVMname \
 	--location $location \
 	--name 'AzureMonitorWindowsAgent' \
-	--resource-group "$Seed-Demo" \
+	--resource-group $RGname \
 	--type "AzureMonitorWindowsAgent" \
 	--publisher "Microsoft.Azure.Monitor" \
 	--enable-auto-upgrade true
@@ -54,11 +54,11 @@ az connectedmachine extension create \
      --machine-name $ArcWinVMname \
      --location $location \
      --name 'DependencyAgentWindows' \
-     --resource-group "$Seed-Demo" \
+     --resource-group $RGname \
      --type "DependencyAgentWindows" \
      --publisher "Microsoft.Azure.Monitoring.DependencyAgent" \
      --settings "{\"enableAMA\": \"true\"}" \
      --enable-auto-upgrade true
 
 # assess the patches on the Arc enabled VM
-az connectedmachine assess-patches -g "$Seed-Demo" -n $ArcWinVMname
+az connectedmachine assess-patches -g $RGname -n $ArcWinVMname
