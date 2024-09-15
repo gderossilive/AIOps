@@ -40,10 +40,6 @@ openAIdeploymentName=$(az deployment group show --name "OpenAIDeploy-$Salt" --re
 #$openAICustomDomainName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIName.value -o tsv
 #$openAIdeploymentName=az deployment group show --name "OpenAIDeploy-0kefs" --resource-group "0kefs-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv
 
-# to save money you cand delete the Azure Bastion and Bastion Public IP
-az network bastion delete --name "Bastion-$Salt" --resource-group $RGname
-az network public-ip delete --name "BastionPublicIP-$Salt" --resource-group $RGname
-
 
 echo "OpenAI ServicePrincipal Id: $CopSp_id 
 OpenAI ServicePrincipal Secret: $CopSp_pwd

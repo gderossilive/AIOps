@@ -15,7 +15,7 @@ az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azur
 # To onboard on Arc this VM: 
 #   1 - Open an RDP session on the VM 
 #   2 - Run the output of the following command in a elevated powershell
-     echo "Invoke-WebRequest -Uri https://raw.githubusercontent.com/gderossilive/Edge/main/Files/Step1-ArcForServer.ps1 \`
+     echo "Invoke-WebRequest -Uri https://raw.githubusercontent.com/gderossilive/Arcv2/main/Files/ArcForServer.ps1 \`
           -OutFile 'c:\windows\temp\step1.ps1';cd \windows\temp;powershell \`
           -File 'c:\windows\temp\step1.ps1' \`
           -SubscriptionId $subscriptionID  \`
@@ -23,8 +23,10 @@ az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azur
           -ResourceGroupName $RGname  \`
           -Location $location  \`
           -ServicePrincipalId $ArcSp_id  \`
-          -Password $ArcSp_pwd"
-#    3 - To enable automatic check for updates for the Arc Agent, run the following commands:
-     $ServiceManager = (New-Object -com "Microsoft.Update.ServiceManager")
-     $ServiceID = "7971f918-a847-4430-9279-4a52d1efe18d"
-     $ServiceManager.AddService2($ServiceId,7,"")
+          -Password $ArcSp_pwd  \`
+          -EnableArcAutoupdate=1  \`
+          -EnableSSH=1"
+
+# to save money you can now delete the Azure Bastion and Bastion Public IP
+az network bastion delete --name "Bastion-$Salt" --resource-group $RGname
+az network public-ip delete --name "BastionPublicIP-$Salt" --resource-group $RGname
