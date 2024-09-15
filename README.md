@@ -26,7 +26,6 @@ Il setup di questo copilot richiede una serie di passi:
 - Pubblicazione del Copilot all'interno di Microsoft Teams
 
 ## 1 - Setup delle risorse utili per la demo
-## 1 - Setup delle risorse utili per la demo
 Obiettivo di questo script è quello di fare il setup delle seguenti componenti:
 - un Resource Group che conterrà tutte le risorse Azure utilizzate dalla demo
 - una coppia di chiavi SSH per l'accesso sicuro ai nodi del cluster AKS
@@ -54,7 +53,6 @@ Le operazioni compiute dallo script sono:
 - Esegue il comando az deployment sub create per creare l'infrastruttura di rete, il key vault, il cluster AKS, la VM che verrà poi abilitata con Azure Arc, il Log Analytics Workspace per la raccolta dei dati di monitoring. Vengono specificati i parametri necessari da passare all'ARM template per la sua esecuzione
 
 ## 2 - Onboarding Arc della VM
-## 2 - Onboarding Arc della VM
 L'obiettivo di questo script è automatizzare il più possibile l'onboarding di una VM su Azure Arc. Inizia perciò con la creazione di un service principal, gli assegna il ruolo "Azure Connected Machine Onboarding" e finisce fornendo le istruzioni per completare l'onboarding
 
 Di seguito i passi principali da eseguire:
@@ -70,7 +68,6 @@ Di seguito i passi principali da eseguire:
 - Eseguire il comando dato in output dallo script all'interno di una Powershell
 - Verificare all'interno del portale di Azure che l'onboarding della VM in Arc sia avvenuto correttamente
 
-## 3 - Onboarding della VM e del Cluster AKS in Azure Monitor
 ## 3 - Onboarding della VM e del Cluster AKS in Azure Monitor
 L'obiettivo di questo script è:
 - Attivare VM Insights sull'Arc enabled VM
