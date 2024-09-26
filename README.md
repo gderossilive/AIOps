@@ -36,6 +36,7 @@ Obiettivo di questo script è quello di fare il setup delle seguenti componenti:
 - un Azure OpenAI service
 
 Di seguito i passi principali da eseguire:
+- Utilizzare Bash o Codespaces
 - Rinominare il file .env.example in .env e personalizzarlo con i propri valori per
     - MyObecjectId ovvero l'Entra ID Object ID dell'utente che eseguirà gli script in Azure
     - MySubscriptionId ovvero l'ID della sottoscrizione dove verranno ospitate le componenti Azure delle demo
@@ -48,7 +49,7 @@ Le operazioni compiute dallo script sono:
 - Attrverso il comando az account set sceglie la sottoscrizione dove installare la demo
 - Genera una stringa casuale di 5 caratteri alfanumerici e la assegna alla variabile $Seed. Questa variabile viene utilizzata per rendere unici i nomi delle risorse create in Azure 
 - Genera una password casuale di 15 caratteri utilizzando una combinazione di numeri e caratteri speciali e la assegna alla variabile $adminPassword. Verrà utilizzata come password dell'amministratore delle VM
-- Crea un nuovo resource group utilizzando il comando az group create, specificando il nome del gruppo come "$Seed-Demo" e la posizione come $ENV:location.
+- Crea un nuovo resource group utilizzando il comando az group create, specificando il nome del gruppo come "$Seed-Demo" e la posizione come $location.
 - Genera una chiave SSH utilizzando il comando az sshkey create e la assegna alla variabile $SSHPublickey.
 - Esegue il comando az deployment sub create per creare l'infrastruttura di rete, il key vault, il cluster AKS, la VM che verrà poi abilitata con Azure Arc, il Log Analytics Workspace per la raccolta dei dati di monitoring. Vengono specificati i parametri necessari da passare all'ARM template per la sua esecuzione
 
