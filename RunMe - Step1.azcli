@@ -10,40 +10,32 @@
 # import environment variables from .env file
 source .env
 
-# Allow installing extensions without prompt
-az config set extension.dynamic_install_allow_preview=true
-
-az login --tenant $MyTenantId --use-device-code
-#az account set --subscription $MySubscriptionId 
-#az login --scope https://management.core.windows.net//.default --tenant $MyTenantId
-az account set --subscription $MySubscriptionId 
+#az login --tenant $MyTenantId --use-device-code
+#az account set --subscription $MySubscriptionId # MCAPS tenant
+az login --scope https://management.core.windows.net//.default --tenant $MyTenantId
+az account set --subscription $MySubscriptionId # MCAPS tenant
 
 # Seed is a random string used to create unique names for the resources
-Seed='aiops'
-Salt=$(printf -v s '%s' {a..z} ; echo ${s:$((RANDOM % ${#s})):5};)
-RGname="$Seed-$Salt"
+Seed=$(printf -v s '%s' {a..z} ; echo ${s:$((RANDOM % ${#s})):5} | base64)
 # generate a random password choosing 7 characters from the alphabet a..z + A..Z + 0..9
-adminPassword=$(printf -v s '%s' {a..z} {A..Z} {0..9}; echo ${s:$((RANDOM % ${#s})):14} | base64)
+adminPassword=$(printf -v s '%s' {a..z} {A..Z} {0..9}; echo ${s:$((RANDOM % ${#s})):7} | base64)
 
 # Create the resource group
-echo "Creating Resource Group $RGname in $location"
-az group create --name $RGname --location "$location"
-
+az group create --name "$Seed-Demo" --location "$location"
 
 # Create the SSH key for the AKS Cluster
-SSHPublickeyTemp=$(az sshkey create --name "SSHKey-$Salt" --resource-group $RGname --query "publicKey" -o tsv)
+SSHPublickeyTemp=$(az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o tsv)
 SSHPublickey=${SSHPublickeyTemp/ generated-by-azure/}
 
 # Create the hub&spoke infrastructure
 az deployment sub create \
-     --name "CoreDeploy-$Salt" \
+     --name "CoreDeploy-$Seed" \
      --location $location \
      --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/Main.json' \
      --parameters \
           'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' \
           location=$location \
-          Seed=$Salt \
-          HubRgName=$RGname \
+          Seed=$Seed \
           MyObjectId=$MyObecjectId \
           adminPassword=$adminPassword \
           SSHPublickey="$SSHPublickey" \
