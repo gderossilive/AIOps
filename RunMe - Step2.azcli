@@ -4,29 +4,31 @@ tenantID=$(az account show --query tenantId -o tsv)
 subscriptionID=$(az account show --query id -o tsv)
 subscriptionName=$(az account show --query name -o tsv)
 
+echo "TenantID: $tenantID"
+echo "SubscriptionID: $subscriptionID"
+echo "SubscriptionName: $subscriptionName"
+echo "ArcDeploySP-$Seed"
+echo /subscriptions/$subscriptionID/resourceGroups/$Seed-Demo
+
+
 # Create a service principal for the Arc resource group using a preferred name and role
-ArcSp_pwd=$(az ad sp create-for-rbac --name "ArcDeploySP-$Salt" \
-                         --role "Azure Connected Machine Onboarding" \
-                         --scopes "/subscriptions/$subscriptionID/resourceGroups/$RGname" \
-                         --query "password" -o tsv)
-ArcSp_id=$(az ad sp list --filter "displayname eq 'ArcDeploySP-$Salt'" --query "[0].appId" -o tsv)
-az role assignment create --assignee $ArcSp_id --role "Kubernetes Cluster - Azure Arc Onboarding" --scope "/subscriptions/$subscriptionID/resourceGroups/$RGname"
+ArcSp_pwd=$(az ad sp create-for-rbac --name ArcDeploySP-$Seed --role "Azure Connected Machine Onboarding" --scopes //subscriptions/$subscriptionID/resourceGroups/$Seed-Demo --query password -o tsv)
+ArcSp_id=$(az ad sp list --filter "displayname eq 'ArcDeploySP-$Seed'" --query "[0].appId" -o tsv)
+az role assignment create --assignee-object-id $ArcSp_id --assignee-principal-type ServicePrincipal --role "Kubernetes Cluster - Azure Arc Onboarding" --scope "//subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
 
 # To onboard on Arc this VM: 
 #   1 - Open an RDP session on the VM 
 #   2 - Run the output of the following command in a elevated powershell
-     echo "Invoke-WebRequest -Uri https://raw.githubusercontent.com/gderossilive/Arcv2/main/Files/ArcForServer.ps1 \`
+     echo "Invoke-WebRequest -Uri https://raw.githubusercontent.com/gderossilive/Edge/main/Files/Step1-ArcForServer.ps1 \`
           -OutFile 'c:\windows\temp\step1.ps1';cd \windows\temp;powershell \`
           -File 'c:\windows\temp\step1.ps1' \`
           -SubscriptionId $subscriptionID  \`
           -TenantId $tenantID  \`
-          -ResourceGroupName $RGname  \`
+          -ResourceGroupName $Seed-Demo  \`
           -Location $location  \`
           -ServicePrincipalId $ArcSp_id  \`
-          -Password $ArcSp_pwd  \`
-          -EnableArcAutoupdate=1  \`
-          -EnableSSH=1"
-
-# to save money you can now delete the Azure Bastion and Bastion Public IP
-az network bastion delete --name "Bastion-$Salt" --resource-group $RGname
-az network public-ip delete --name "BastionPublicIP-$Salt" --resource-group $RGname
+          -Password $ArcSp_pwd"
+#    3 - To enable automatic check for updates for the Arc Agent, run the following commands:
+     $ServiceManager = (New-Object -com "Microsoft.Update.ServiceManager")
+     $ServiceID = "7971f918-a847-4430-9279-4a52d1efe18d"
+     $ServiceManager.AddService2($ServiceId,7,"")
