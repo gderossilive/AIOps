@@ -24,6 +24,7 @@ adminPassword=$(printf -v s '%s' {a..z} {A..Z} {0..9}; echo ${s:$((RANDOM % ${#s
 
 # Create the resource group
 az group create --name "$Seed-Demo" --location "$location"
+RGname="$Seed-Demo"
 
 # Create the SSH key for the AKS Cluster
 SSHPublickeyTemp=$(az sshkey create --name "SSHKey-$Seed" --resource-group "$Seed-Demo" --query "publicKey" -o tsv)
