@@ -11,12 +11,12 @@
 source .env
 
 #az login --tenant $MyTenantId --use-device-code
-#az account set --subscription $MySubscriptionId # MCAPS tenant
+#az account set --subscription $MySubscriptionId 
 az login --scope https://management.core.windows.net//.default --tenant $MyTenantId
-az account set --subscription $MySubscriptionId # MCAPS tenant
+az account set --subscription $MySubscriptionId 
 
 # Seed is a random string used to create unique names for the resources
-Seed=$(printf -v s '%s' {a..z} ; echo ${s:$((RANDOM % ${#s})):5} | base64)
+Seed=$(printf -v s '%s' {a..z} ; echo ${s:$((RANDOM % ${#s})):5})
 # generate a random password choosing 7 characters from the alphabet a..z + A..Z + 0..9
 adminPassword=$(printf -v s '%s' {a..z} {A..Z} {0..9}; echo ${s:$((RANDOM % ${#s})):7} | base64)
 
