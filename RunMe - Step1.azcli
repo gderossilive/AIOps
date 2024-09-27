@@ -15,8 +15,10 @@ source .env
 az login --scope https://management.core.windows.net//.default --tenant $MyTenantId
 az account set --subscription $MySubscriptionId 
 
-# Seed is a random string used to create unique names for the resources
-Seed=$(printf -v s '%s' {a..z} ; echo ${s:$((RANDOM % ${#s})):5})
+# Genera una stringa casuale di 5 caratteri
+Seed=$(tr -dc 'a-z0-9' < /dev/urandom | head -c 5)
+echo "$Seed"
+
 # generate a random password choosing 7 characters from the alphabet a..z + A..Z + 0..9
 adminPassword=$(printf -v s '%s' {a..z} {A..Z} {0..9}; echo ${s:$((RANDOM % ${#s})):7} | base64)
 
