@@ -34,7 +34,7 @@ SSHPublickey=${SSHPublickeyTemp/ generated-by-azure/}
 az deployment sub create \
      --name "CoreDeploy-$Seed" \
      --location $location \
-     --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/Main.json' \
+     --template-file './Main.bicep' \
      --parameters \
           'https://raw.githubusercontent.com/gderossilive/AIOps/main/Parameters.json' \
           location=$location \

@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.28.1.47646",
-      "templateHash": "10442360012350189205"
+      "version": "0.30.23.60470",
+      "templateHash": "10369115077857829907"
     }
   },
   "parameters": {
@@ -185,8 +185,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.28.1.47646",
-              "templateHash": "13976035536806012941"
+              "version": "0.30.23.60470",
+              "templateHash": "14718754066211419705"
             }
           },
           "parameters": {
@@ -327,46 +327,6 @@
               ]
             },
             {
-              "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "2020-08-01",
-              "name": "[parameters('BastionPublicIpName')]",
-              "location": "[parameters('location')]",
-              "sku": {
-                "name": "Standard"
-              },
-              "properties": {
-                "publicIPAllocationMethod": "Static"
-              }
-            },
-            {
-              "type": "Microsoft.Network/bastionHosts",
-              "apiVersion": "2022-01-01",
-              "name": "[parameters('BastionHostName')]",
-              "location": "[parameters('location')]",
-              "sku": {
-                "name": "Basic"
-              },
-              "properties": {
-                "ipConfigurations": [
-                  {
-                    "name": "IpConf",
-                    "properties": {
-                      "subnet": {
-                        "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('HubVnetName')), '2021-02-01').subnets[0].id]"
-                      },
-                      "publicIPAddress": {
-                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('BastionPublicIpName'))]"
-                      }
-                    }
-                  }
-                ]
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('HubVnetName'))]",
-                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('BastionPublicIpName'))]"
-              ]
-            },
-            {
               "type": "Microsoft.Resources/deployments",
               "apiVersion": "2022-09-01",
               "name": "[variables('KVname')]",
@@ -398,8 +358,8 @@
                   "metadata": {
                     "_generator": {
                       "name": "bicep",
-                      "version": "0.28.1.47646",
-                      "templateHash": "10752044534046525469"
+                      "version": "0.30.23.60470",
+                      "templateHash": "6908944087740179451"
                     }
                   },
                   "parameters": {
@@ -583,8 +543,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.28.1.47646",
-              "templateHash": "574713006253939711"
+              "version": "0.30.23.60470",
+              "templateHash": "3692668750997635643"
             }
           },
           "parameters": {
@@ -680,8 +640,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.28.1.47646",
-              "templateHash": "7589798764335488724"
+              "version": "0.30.23.60470",
+              "templateHash": "16955163171921146344"
             }
           },
           "parameters": {
@@ -962,8 +922,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.28.1.47646",
-              "templateHash": "7589798764335488724"
+              "version": "0.30.23.60470",
+              "templateHash": "16955163171921146344"
             }
           },
           "parameters": {
@@ -1219,8 +1179,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.28.1.47646",
-              "templateHash": "18067393204318834857"
+              "version": "0.30.23.60470",
+              "templateHash": "5591992615057413956"
             }
           },
           "parameters": {

@@ -5,20 +5,20 @@ KVname=$(az deployment sub show --name "CoreDeploy-$Seed" --query properties.out
 # Create a service principal for the Copilot with the Reader RBAC role on the Resource Group
 CopSp_pwd=$(az ad sp create-for-rbac --name "CopilotReaderSP-$Seed" \
                          --role "Reader" \
-                         --scopes "//subscriptions/$subscriptionID/resourceGroups/$Seed-Demo" \
+                         --scopes "//subscriptions/$subscriptionID/resourceGroups/$RGname" \
                          --query "password" -o tsv)
 CopSp_id=$(az ad sp list --filter "displayname eq 'CopilotReaderSP-$Seed'" --query "[0].appId" -o tsv)
 
 # Assign the Reader role to the Copilot Service Principal to access the Log Analytics workspace
-az role assignment create --assignee $CopSp_id --role "Reader" --scope "//subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
+#az role assignment create --assignee $CopSp_id --role "Reader" --scope "//subscriptions/$subscriptionID/resourceGroups/$RGname"
 
 # Assign the Key Vault Secrets User role to the Copilot Service Principal to access the OpenAI API key and the Service Principal secret
-az role assignment create --assignee $CopSp_id --role "Key Vault Secrets User" --scope "//subscriptions/$subscriptionID/resourceGroups/$Seed-Demo"
+az role assignment create --assignee $CopSp_id --role "Key Vault Secrets User" --scope "//subscriptions/$subscriptionID/resourceGroups/$RGname"
 
 # Create OpenAI Service + Deployment + RAI Policy
 az deployment group create \
      --name "OpenAIDeploy-$Seed" \
-     --resource-group "$Seed-Demo" \
+     --resource-group "$RGname" \
      --template-uri 'https://raw.githubusercontent.com/gderossilive/AIOps/main/ARM/OpenAI.json' \
      --parameters \
           location='swedencentral' \
@@ -27,13 +27,13 @@ az deployment group create \
           Seed=$Seed 
 
 # to save money you cand delete the Azure Bastion ans Bastion Public IP
-az network bastion delete --name "Bastion-$Seed" --resource-group "$Seed-Demo"
-az network public-ip delete --name "BastionPublicIP-$Seed" --resource-group "$Seed-Demo"
+#az network bastion delete --name "Bastion-$Seed" --resource-group "$RGname"
+#az network public-ip delete --name "BastionPublicIP-$Seed" --resource-group "$RGname"
 
 # Retrieve the OpenAI Custom Domain Name and OpenAI Deployment Name from the deployment outputs
-openAIServiceName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIserviceName.value -o tsv)
-openAICustomDomainName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIName.value -o tsv)
-openAIdeploymentName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$Seed-Demo" --query properties.outputs.openAIdeploymentName.value -o tsv)
+openAIServiceName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$RGname" --query properties.outputs.openAIserviceName.value -o tsv)
+openAICustomDomainName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$RGname" --query properties.outputs.openAIName.value -o tsv)
+openAIdeploymentName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$RGname" --query properties.outputs.openAIdeploymentName.value -o tsv)
 
 # Display the output values needed to configure the Copilot
 echo "OpenAI ServicePrincipal Id: $CopSp_id 

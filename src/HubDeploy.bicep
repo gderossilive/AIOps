@@ -112,7 +112,7 @@ resource adminPsswd 'Microsoft.KeyVault/vaults/secrets@2021-04-01-preview' =  {
     value: adminPassword
   }
 }
-
+/*
 resource publicIpAddressForBastion 'Microsoft.Network/publicIpAddresses@2020-08-01' = {
   name: BastionPublicIpName
   location: location
@@ -148,7 +148,7 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2022-01-01' =  {
       }
     ]
   }
-}
+}*/
 
 output HubVnetName string = HubVnetName
 output PEsubnetName string = PEsubnetName
