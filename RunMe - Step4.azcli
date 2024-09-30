@@ -26,10 +26,6 @@ az deployment group create \
           KVname=$KVname \
           Seed=$Seed 
 
-# to save money you cand delete the Azure Bastion ans Bastion Public IP
-#az network bastion delete --name "Bastion-$Seed" --resource-group "$RGname"
-#az network public-ip delete --name "BastionPublicIP-$Seed" --resource-group "$RGname"
-
 # Retrieve the OpenAI Custom Domain Name and OpenAI Deployment Name from the deployment outputs
 openAIServiceName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$RGname" --query properties.outputs.openAIserviceName.value -o tsv)
 openAICustomDomainName=$(az deployment group show --name "OpenAIDeploy-$Seed" --resource-group "$RGname" --query properties.outputs.openAIName.value -o tsv)
@@ -43,3 +39,7 @@ Key Vault Name: $KVname
 Log Analytics Workspace Name: $LAWname 
 OpenAI Custom Domain Name: $openAICustomDomainName 
 OpenAI Deployment Name: $openAIdeploymentName"
+
+# to save money you cand delete the Azure Bastion ans Bastion Public IP
+az network bastion delete --name "Bastion-$Seed" --resource-group "$RGname"
+az network public-ip delete --name "BastionPublicIP-$Seed" --resource-group "$RGname"

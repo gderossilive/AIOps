@@ -22,6 +22,7 @@ param FirewallManagementSubnetAddressPrefix string
 param GatewaySubnetAddressPrefix string
 param BastionHostName string = 'Bastion-${Seed}'
 param BastionPublicIpName string = 'BastionPublicIp-${Seed}'
+param BastionDeploy bool = true
 
 param WinCommand string = ''
 param LinCommand string = ''
@@ -66,6 +67,7 @@ module HubDeploy 'src/HubDeploy.bicep' = {
     DMZsubnetName: DMZsubnetName
     BastionHostName: BastionHostName
     BastionPublicIpName: BastionPublicIpName
+    BastionDeploy: BastionDeploy
   }
  }
 

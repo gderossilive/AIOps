@@ -17,6 +17,9 @@ param BastionSubnetAddressPrefix string
 param FirewallSubnetAddressPrefix string
 param FirewallManagementSubnetAddressPrefix string
 param GatewaySubnetAddressPrefix string
+
+// Bastion
+param BastionDeploy bool = false
 param BastionPublicIpName string
 param BastionHostName string
 
@@ -112,8 +115,8 @@ resource adminPsswd 'Microsoft.KeyVault/vaults/secrets@2021-04-01-preview' =  {
     value: adminPassword
   }
 }
-/*
-resource publicIpAddressForBastion 'Microsoft.Network/publicIpAddresses@2020-08-01' = {
+
+resource publicIpAddressForBastion 'Microsoft.Network/publicIpAddresses@2020-08-01' = if(BastionDeploy) {
   name: BastionPublicIpName
   location: location
   sku: {
@@ -124,7 +127,7 @@ resource publicIpAddressForBastion 'Microsoft.Network/publicIpAddresses@2020-08-
   }
 }
 
-resource bastionHost 'Microsoft.Network/bastionHosts@2022-01-01' =  {
+resource bastionHost 'Microsoft.Network/bastionHosts@2022-01-01' = if(BastionDeploy) {
   name: BastionHostName
   dependsOn: [
     HubVNet
@@ -148,7 +151,7 @@ resource bastionHost 'Microsoft.Network/bastionHosts@2022-01-01' =  {
       }
     ]
   }
-}*/
+}
 
 output HubVnetName string = HubVnetName
 output PEsubnetName string = PEsubnetName
