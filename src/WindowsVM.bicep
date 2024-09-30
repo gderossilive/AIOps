@@ -41,14 +41,15 @@ param virtualNetworkName string
 param subnetName string
 param Command string = ''
 param CustomDnsServer string = ''
+param DeployBastion bool = false
 
 
 var seed = substring(uniqueString(vmName, virtualNetworkName, subnetName),0,5)
 var nicName = '${vmName}-Nic-${seed}'
 var publicIpName = '${vmName}-PIP-${seed}'
 
-/*
-resource pip 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
+
+resource pip 'Microsoft.Network/publicIPAddresses@2021-02-01' = if (!DeployBastion) {
   name: publicIpName
   location: location
   sku: {
@@ -60,7 +61,7 @@ resource pip 'Microsoft.Network/publicIPAddresses@2021-02-01' = {
       domainNameLabel: dnsLabelPrefix
     }
   }
-}*/
+}
 
 
 resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
@@ -76,9 +77,9 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-02-01' = {
         name: 'ipconfig1'
         properties: {
           privateIPAllocationMethod: 'Dynamic'
-/*          publicIPAddress: {
-            id: pip.id
-          }*/
+          publicIPAddress: {
+            id: DeployBastion ? '' : pip.id
+          }
           subnet: {
             id: resourceId('Microsoft.Network/virtualNetworks/subnets', vn.name, subnetName)
           }
@@ -90,6 +91,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2021-02-01' = {
     }
   }
 }
+
 
 resource vm 'Microsoft.Compute/virtualMachines@2021-03-01' = {
   name: vmName
